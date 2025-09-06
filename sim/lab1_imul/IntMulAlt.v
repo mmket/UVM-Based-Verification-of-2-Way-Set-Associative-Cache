@@ -25,11 +25,6 @@ module lab1_imul_IntMulAlt
   output logic [31:0] ostream_msg
 );
 
-  // ''' LAB TASK ''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-  // Instantiate datapath and control models here and then connect them
-  // together.
-  // '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
 // FSM Control
 parameter IDLE = 2'd0, CALC = 2'd1, DONE = 2'd2;
 reg [1:0] state, next_state;
