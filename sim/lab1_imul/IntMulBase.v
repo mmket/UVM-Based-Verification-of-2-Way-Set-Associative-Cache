@@ -70,7 +70,7 @@ end
 
 // Multiplier
 reg signed [31:0] a_reg, b_reg;
-reg signed [63:0] result_reg;
+reg signed [31:0] result_reg;
 
 always @(posedge clk or posedge reset) begin
   if(reset) b_reg <= 32'b0;
@@ -87,9 +87,9 @@ always @(posedge clk or posedge reset) begin
 end
 
 always @(posedge clk or posedge reset) begin
-  if(reset) result_reg <= 63'b0;
+  if(reset) result_reg <= 31'b0;
   else if(state == CALC) result_reg <= b_reg[0] ? (result_reg + a_reg) : result_reg;
-  else result_reg <= 63'b0;
+  else result_reg <= 31'b0;
 end
 
   //----------------------------------------------------------------------
