@@ -7,10 +7,6 @@
 
 `include "vc/trace.v"
 
-// ''' LAB TASK ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-// Define datapath and control unit here.
-// '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
 //=========================================================================
 // Integer Multiplier Variable-Latency Implementation
 //=========================================================================
@@ -161,10 +157,6 @@ assign stop = ((index + counter) >= 6'd32);
 
     vc_trace.append_str( trace_str, "(" );
 
-    // ''' LAB TASK ''''''''''''''''''''''''''''''''''''''''''''''''''''''
-    // Add additional line tracing using the helper tasks for
-    // internal state including the current FSM state.
-    // '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
     vc_trace.append_str( trace_str, ")" );
 

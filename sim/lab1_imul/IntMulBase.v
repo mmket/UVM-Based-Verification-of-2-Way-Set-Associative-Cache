@@ -7,10 +7,6 @@
 
 `include "vc/trace.v"
 
-// ''' LAB TASK ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-// Define datapath and control unit here.
-// '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
 //========================================================================
 // Integer Multiplier Fixed-Latency Implementation
 //========================================================================
@@ -28,11 +24,6 @@ module lab1_imul_IntMulBase
   input  logic        ostream_rdy,
   output logic [31:0] ostream_msg
 );
-
-  // ''' LAB TASK ''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-  // Instantiate datapath and control models here and then connect them
-  // together.
-  // '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 // FSM Control
 parameter IDLE = 2'd0, CALC = 2'd1, DONE = 2'd2;
@@ -115,11 +106,6 @@ end
     vc_trace.append_val_rdy_str( trace_str, istream_val, istream_rdy, str );
 
     vc_trace.append_str( trace_str, "(" );
-
-    // ''' LAB TASK ''''''''''''''''''''''''''''''''''''''''''''''''''''''
-    // Add additional line tracing using the helper tasks for
-    // internal state including the current FSM state.
-    // '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
     vc_trace.append_str( trace_str, ")" );
 
