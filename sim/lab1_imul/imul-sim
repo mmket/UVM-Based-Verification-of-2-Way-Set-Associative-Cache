@@ -235,11 +235,6 @@ def main():
 
   inputs  = None
 
-  # ''' LAB TASK '''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-  # Use additional if statements to set the inputs appropriately based on
-  # the --input command line option.
-  # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
   if opts.input == "small":
     inputs = random_small_msgs
 

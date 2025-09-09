@@ -60,7 +60,7 @@ always @(posedge clk or posedge reset) begin
     ostream_val <= 1'b0;
   end
   else if(state == DONE) begin
-    ostream_msg <= ostream_val ? ostream_msg :result_reg[31:0];
+    ostream_msg <= ostream_val ? ostream_msg : result_reg[31:0];
     ostream_val <= 1'b1;
   end
   else begin
