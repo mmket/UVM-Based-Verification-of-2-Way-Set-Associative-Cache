@@ -69,6 +69,46 @@ always @(posedge clk or posedge reset) begin
   end
 end
 
+// Reordering
+reg signed [31:0] b_message, a_message;
+
+always @(*) begin
+  case({istream_msg[31], istream_msg[63]})
+    2'b00: begin    // pos pos
+      if(istream_msg[31:0] > istream_msg[63:32]) begin
+        b_message = istream_msg[63:32];
+        a_message = istream_msg[31:0];
+      end
+      else begin
+        b_message = istream_msg[31:0];
+        a_message = istream_msg[63:32];
+      end
+    end
+    2'b01: begin    // pos neg
+      b_message = istream_msg[31:0];
+      a_message = istream_msg[63:32];
+    end
+    2'b10: begin    // neg pos
+      b_message = istream_msg[63:32];
+      a_message = istream_msg[31:0];
+    end
+    2'b11: begin    // neg neg
+      if($signed(istream_msg[31:0] > istream_msg[63:32])) begin
+        b_message = istream_msg[63:32];
+        a_message = istream_msg[31:0];
+      end
+      else begin
+        b_message = istream_msg[31:0];
+        a_message = istream_msg[63:32];
+      end
+    end
+    default: begin
+      b_message = istream_msg[63:32];
+      a_message = istream_msg[31:0];
+    end
+  endcase
+end
+
 // Multiplier
 reg [5:0] index;
 reg signed [31:0] a_reg, b_reg;
@@ -76,14 +116,14 @@ reg signed [31:0] result_reg;
 
 always @(posedge clk or posedge reset) begin
   if(reset) b_reg <= 32'b0;
-  else if(istream_val && istream_rdy) b_reg <= istream_msg[31:0];
+  else if(istream_val && istream_rdy) b_reg <= b_message;
   else if(state == CALC) b_reg <= (b_reg >>> index);
   else b_reg <= b_reg;
 end
 
 always @(posedge clk or posedge reset) begin
   if(reset) a_reg <= 32'b0;
-  else if(istream_val && istream_rdy) a_reg <= istream_msg[63:32];
+  else if(istream_val && istream_rdy) a_reg <= a_message;
   else if(state == CALC) a_reg <= (a_reg <<< index);
   else a_reg <= a_reg;
 end
