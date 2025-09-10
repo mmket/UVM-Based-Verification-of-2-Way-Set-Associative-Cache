@@ -53,18 +53,14 @@ end
 // Shake Hand
 assign istream_rdy = (state == IDLE);
 
-always @(posedge clk or posedge reset) begin
-  if(reset) begin
-    ostream_msg <= 32'b0;
-    ostream_val <= 1'b0;
-  end
-  else if(state == DONE) begin
-    ostream_msg <= ostream_val ? ostream_msg : result_reg[31:0];
-    ostream_val <= 1'b1;
+always @(*) begin
+  if(state == DONE) begin
+    ostream_msg = result_reg[31:0];
+    ostream_val = 1'b1;
   end
   else begin
-    ostream_msg <= 32'b0;
-    ostream_val <= 1'b0;
+    ostream_msg = 32'b0;
+    ostream_val = 1'b0;
   end
 end
 
@@ -88,8 +84,9 @@ end
 
 always @(posedge clk or posedge reset) begin
   if(reset) result_reg <= 31'b0;
+  else if(state == IDLE) result_reg <= 31'b0;
   else if(state == CALC) result_reg <= b_reg[0] ? (result_reg + a_reg) : result_reg;
-  else result_reg <= 31'b0;
+  else result_reg <= result_reg;
 end
 
   //----------------------------------------------------------------------
