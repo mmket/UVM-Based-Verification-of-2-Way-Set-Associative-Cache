@@ -5,6 +5,7 @@
 import pytest
 
 from random import randint
+from random import Random
 
 from pymtl3 import *
 from pymtl3.stdlib.test_utils import mk_test_case_table, run_sim
@@ -174,6 +175,102 @@ trigger_corner_cases_msgs = [
     mk_imsg(-2147483633, 1073741432), mk_omsg(-1073747704),
 ]
 
+# ----------------------------------------------------------------------
+# Random helpers and randomized message sets (reproducible)
+# ----------------------------------------------------------------------
+
+_RNG = Random(0x4750)    
+
+INT_MIN = -(1<<31)
+INT_MAX =  (1<<31) - 1
+
+def rand_i32():
+  return _RNG.randint(INT_MIN, INT_MAX)
+
+def mask_low_bits(x):
+  return x & 0xFFFFF000
+
+def mask_high_bits(x):
+  return x & 0x000FFFFF
+
+def mask_middle_bits(x):
+  mask =0xFF0000FF
+  return x & mask
+
+def rand_sparse_i32(p_one=0.10):
+  v = 0
+  for i in range(31):
+    if _RNG.random() < p_one:
+      v |= (1 << i)
+  if _RNG.random() < 0.5:
+    v |= (1 << 31)
+  if v & (1<<31):
+    return v - (1<<32)
+  else:
+    return v
+
+def rand_dense_i32(p_one=0.90):
+  v = 0
+  for i in range(32):
+    if _RNG.random() < p_one:
+      v |= (1 << i)
+  if v & (1<<31):
+    return v - (1<<32)
+  else:
+    return v
+
+def gen_random_msgs(n, make_pair_fn):
+  msgs = []
+  for _ in range(n):
+    a, b = make_pair_fn()
+    msgs.extend([ mk_imsg(a,b), mk_omsg(a*b) ])
+  return msgs
+
+rand_uniform_msgs = gen_random_msgs(
+  50,
+  lambda: (rand_i32(), rand_i32())
+)
+
+rand_low_masked_msgs = gen_random_msgs(
+  50,
+  lambda: (
+    mask_low_bits(rand_i32()),
+    mask_low_bits(rand_i32()),
+  )
+)
+
+rand_high_masked_msgs = gen_random_msgs(
+  50,
+  lambda: (
+    mask_high_bits(rand_i32()),
+    mask_high_bits(rand_i32()),
+  )
+)
+
+rand_low_high_masked_msgs = gen_random_msgs(
+  50,
+  lambda: (
+    mask_high_bits(mask_low_bits(rand_i32())),
+    mask_high_bits(mask_low_bits(rand_i32())),
+  )
+)
+
+rand_middle_masked_msgs2 = gen_random_msgs(
+  50,
+  lambda: (mask_middle_bits(rand_i32()), mask_middle_bits(rand_i32()))
+)
+
+rand_sparse_msgs = gen_random_msgs(
+  50,
+  lambda: (rand_sparse_i32(), rand_sparse_i32())
+)
+
+rand_dense_msgs = gen_random_msgs(
+  50,
+  lambda: (rand_dense_i32(), rand_dense_i32())
+)
+
+
 #-------------------------------------------------------------------------
 # Test Case Table
 #-------------------------------------------------------------------------
@@ -194,6 +291,32 @@ test_case_table = mk_test_case_table([
   [ "sparse_number_msgs",        sparse_number_msgs,        0,        0     ],
   [ "dense_number_msgs",         dense_number_msgs,         0,        0     ],
   [ "trigger_corner_cases_msgs", trigger_corner_cases_msgs, 0,        0     ],
+  [ "small_pos_pos",             small_pos_pos_msgs,        1,        3     ],          
+  [ "zero_one_neg_msgs",         zero_one_neg_msgs,         2,        2     ],
+  [ "small_neg_pos_msgs",        small_neg_pos_msgs,        3,        1     ],
+  [ "small_pos_neg_msgs",        small_pos_neg_msgs,        2,        3     ],
+  [ "small_neg_neg_msgs",        small_neg_neg_msgs,        1,        1     ],
+  [ "large_pos_pos_msgs",        large_pos_pos_msgs,        2,        2     ],
+  [ "large_pos_neg_msgs",        large_pos_neg_msgs,        2,        3     ],
+  [ "large_neg_pos_msgs",        large_neg_pos_msgs,        3,        1     ],
+  [ "large_neg_neg_msgs",        large_neg_neg_msgs,        3,        1     ],
+  [ "low_bit_masked_msgs",       low_bit_masked_msgs,       1,        1     ],
+  [ "middle_bit_masked_msgs",    middle_bit_masked_msgs,    2,        2     ],
+  [ "sparse_number_msgs",        sparse_number_msgs,        1,        3     ],
+  [ "dense_number_msgs",         dense_number_msgs,         5,        2     ],
+  [ "trigger_corner_cases_msgs", trigger_corner_cases_msgs, 2,        3     ],
+  [ "rand_uniform",             rand_uniform_msgs,          0,        0     ],
+  [ "rand_low_masked",          rand_low_masked_msgs,       0,        0     ],
+  [ "rand_high_masked",         rand_high_masked_msgs,      0,        0     ],
+  [ "rand_low_high_masked",     rand_low_high_masked_msgs,  0,        0     ],
+  [ "rand_middle_masked2",      rand_middle_masked_msgs2,   0,        0     ],
+  [ "rand_sparse",              rand_sparse_msgs,           0,        0     ],
+  [ "rand_dense",               rand_dense_msgs,            0,        0     ],
+  [ "rand_uniform_delayed",     rand_uniform_msgs,          2,        3     ],
+  [ "rand_low_masked_delayed",  rand_low_masked_msgs,       4,        2     ],
+  [ "rand_middle_masked_del",   rand_middle_masked_msgs2,   3,        5     ],
+  [ "rand_sparse_delayed",      rand_sparse_msgs,           5,        4     ],
+  [ "rand_dense_delayed",       rand_dense_msgs,            6,        6     ],
 
 ])
 
