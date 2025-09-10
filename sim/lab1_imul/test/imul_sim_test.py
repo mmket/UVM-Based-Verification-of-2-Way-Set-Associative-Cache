@@ -9,19 +9,11 @@ import os
 from subprocess import check_call, CalledProcessError
 from itertools  import product
 
-impls  = [ "fl" ]
-inputs = [ "small" ]
-
-# ''' LAB TASK '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-# Once you get your baseline and alternative design passing all of your
-# tests and once you have your simulator working, then update the impls
-# list to include "base" and "alt" so that this test case will help make
-# sure your simulator is always working. You can do that by adding
-# something like this:
-#
-#  impls += [ "base", "alt" ]
-#
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+impls  = [ "fl", "base", "alt"]
+inputs = [ "small", "small_pos_pos_msgs", "zero_one_neg_msgs", "small_neg_pos_msgs",
+    "small_pos_neg_msgs", "small_neg_neg_msgs", "large_pos_pos_msgs", "large_pos_neg_msgs",
+    "large_neg_pos_msgs", "large_neg_neg_msgs", "low_bit_masked_msgs", "middle_bit_masked_msgs",
+    "sparse_number_msgs", "dense_number_msgs", "trigger_corner_cases_msgs"]
 
 test_cases = []
 for input_ in inputs:
