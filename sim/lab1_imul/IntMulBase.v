@@ -30,7 +30,7 @@ parameter IDLE = 2'd0, CALC = 2'd1, DONE = 2'd2;
 logic [1:0] state, next_state;
 logic [5:0] counter;
 
-always @(*) begin
+always_comb begin
   case(state)
     IDLE: next_state = (istream_val && istream_rdy) ? CALC : IDLE;
     CALC: next_state = (counter == 6'd32) ? DONE : CALC;
@@ -39,12 +39,12 @@ always @(*) begin
   endcase
 end
 
-always @(posedge clk or posedge reset) begin
+always_ff @(posedge clk) begin
   if(reset) state <= IDLE;
   else state <= next_state;
 end
 
-always @(posedge clk or posedge reset) begin
+always_ff @(posedge clk) begin
   if(reset) counter <= 6'b0;
   else if(state == CALC) counter <= counter + 1;
   else counter <= 6'b0;
@@ -53,7 +53,7 @@ end
 // Shake Hand
 assign istream_rdy = (state == IDLE);
 
-always @(*) begin
+always_comb begin
   if(state == DONE) begin
     ostream_msg = result_reg[31:0];
     ostream_val = 1'b1;
@@ -68,21 +68,21 @@ end
 logic [31:0] a_reg, b_reg;
 logic [31:0] result_reg;
 
-always @(posedge clk or posedge reset) begin
+always_ff @(posedge clk) begin
   if(reset) b_reg <= 32'b0;
   else if(istream_val && istream_rdy) b_reg <= istream_msg[31:0];
   else if(state == CALC) b_reg <= $signed(b_reg >>> 1);
   else b_reg <= b_reg;
 end
 
-always @(posedge clk or posedge reset) begin
+always_ff @(posedge clk) begin
   if(reset) a_reg <= 32'b0;
   else if(istream_val && istream_rdy) a_reg <= istream_msg[63:32];
   else if(state == CALC) a_reg <= $signed(a_reg <<< 1);
   else a_reg <= a_reg;
 end
 
-always @(posedge clk or posedge reset) begin
+always_ff @(posedge clk) begin
   if(reset) result_reg <= 31'b0;
   else if(state == IDLE) result_reg <= 31'b0;
   else if(state == CALC) result_reg <= b_reg[0] ? $signed(result_reg + a_reg) : result_reg;

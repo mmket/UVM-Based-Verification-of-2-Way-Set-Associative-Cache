@@ -25,26 +25,36 @@ module lab2_proc_ProcDpathAlu
       4'd11   : out = in0;                                      // CP OP0
       4'd12   : out = in1;                                      // CP OP1
 
-      //''' LAB TASK '''''''''''''''''''''''''''''''''''''''''''''''''''''
-      // Add more alu function
-      //''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+      4'd1   : out = in0 - in1;                                      // SUB
+      
+      4'd3   : out = in0 & in1;                                      // AND
+      4'd4   : out = in0 | in1;                                      // OR
+      4'd5   : out = in0 ^ in1;                                      // XOR
+      4'd6   : out = $signed(in0) < $signed(in1);                                    // SLT
+      4'd7   : out = $signed(in0) >>> in1[4:0];                            // SRA
+      4'd8   : out = in0 >> in1[4:0];                                      // SRL
+      4'd9   : out = in0 << in1[4:0];                                      // SLL
 
       default : out = 32'b0;
     endcase
 
   end
 
-  // Calculate equality, zero, negative flags
+  // // Calculate equality, zero, negative flags
 
-  vc_EqComparator #(32) cond_eq_comp
-  (
-    .in0  (in0),
-    .in1  (in1),
-    .out  (ops_eq)
-  );
+  assign ops_eq = (in0 == in1);                                      // Equal
+  assign ops_lt = ($signed(in0) < $signed(in1));                     // BLT
+  assign ops_ltu = (in0 < in1);                                      // BLT
 
-  assign ops_lt = $signed(in0) < $signed(in1);
-  assign ops_ltu = in0 < in1;
+  // vc_EqComparator #(32) cond_eq_comp
+  // (
+  //   .in0  (in0),
+  //   .in1  (in1),
+  //   .out  (ops_eq)
+  // );
+
+  // assign ops_lt = $signed(in0) < $signed(in1);
+  // assign ops_ltu = in0 < in1;
 
 endmodule
 

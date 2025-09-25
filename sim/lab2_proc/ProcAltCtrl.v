@@ -2,14 +2,14 @@
 // 5-Stage Simple Pipelined Processor Control
 //=========================================================================
 
-`ifndef LAB2_PROC_PROC_BASE_CTRL_V
-`define LAB2_PROC_PROC_BASE_CTRL_V
+`ifndef LAB2_PROC_PROC_ALT_CTRL_V
+`define LAB2_PROC_PROC_ALT_CTRL_V
 
 `include "vc/trace.v"
 
 `include "lab2_proc/tinyrv2_encoding.v"
 
-module lab2_proc_ProcBaseCtrl
+module lab2_proc_ProcAltCtrl
 (
   input  logic        clk,
   input  logic        reset,
@@ -84,7 +84,11 @@ module lab2_proc_ProcBaseCtrl
   // JAL
 
   output logic jal_X,
-  output logic jalr_X
+  output logic jalr_X,
+
+  // bypass control
+  output logic [1:0] bypass_sel_0,
+  output logic [1:0] bypass_sel_1
 
 );
 
@@ -456,42 +460,35 @@ module lab2_proc_ProcBaseCtrl
   logic  ostall_waddr_X_rs1_D;
   assign ostall_waddr_X_rs1_D
     = val_D && rs1_en_D && val_X && rf_wen_X
-      && ( inst_rs1_D == rf_waddr_X ) && ( rf_waddr_X != 5'd0 );
+      && ( inst_rs1_D == rf_waddr_X ) && ( rf_waddr_X != 5'd0 ) && (dmem_type_X == ld);
+
 
   // ostall if write address in M matches rs1 in D
 
   logic  ostall_waddr_M_rs1_D;
-  assign ostall_waddr_M_rs1_D
-    = val_D && rs1_en_D && val_M && rf_wen_M
-      && ( inst_rs1_D == rf_waddr_M ) && ( rf_waddr_M != 5'd0 );
+  assign ostall_waddr_M_rs1_D = 0;
 
   // ostall if write address in W matches rs1 in D
 
   logic  ostall_waddr_W_rs1_D;
-  assign ostall_waddr_W_rs1_D
-    = val_D && rs1_en_D && val_W && rf_wen_W
-      && ( inst_rs1_D == rf_waddr_W ) && ( rf_waddr_W != 5'd0 );
+  assign ostall_waddr_W_rs1_D = 0;
 
   // ostall if write address in X matches rs2 in D
 
   logic  ostall_waddr_X_rs2_D;
   assign ostall_waddr_X_rs2_D
     = val_D && rs2_en_D && val_X && rf_wen_X
-      && ( inst_rs2_D == rf_waddr_X ) && ( rf_waddr_X != 5'd0 );
+      && ( inst_rs2_D == rf_waddr_X ) && ( rf_waddr_X != 5'd0 ) && (dmem_type_X == ld);
 
   // ostall if write address in M matches rs2 in D
 
   logic  ostall_waddr_M_rs2_D;
-  assign ostall_waddr_M_rs2_D
-    = val_D && rs2_en_D && val_M && rf_wen_M
-      && ( inst_rs2_D == rf_waddr_M ) && ( rf_waddr_M != 5'd0 );
+  assign ostall_waddr_M_rs2_D = 0;
 
   // ostall if write address in W matches rs2 in D
 
   logic  ostall_waddr_W_rs2_D;
-  assign ostall_waddr_W_rs2_D
-    = val_D && rs2_en_D && val_W && rf_wen_W
-      && ( inst_rs2_D == rf_waddr_W ) && ( rf_waddr_W != 5'd0 );
+  assign ostall_waddr_W_rs2_D = 0;
 
   // Put together ostall signal due to hazards
 
@@ -524,7 +521,29 @@ module lab2_proc_ProcBaseCtrl
   logic  next_val_D;
   assign next_val_D = val_D && !stall_D && !squash_D;
 
-  // JAL
+  // Bypass Control
+
+always_comb begin
+    if(val_D && rs1_en_D && val_X && rf_wen_X
+      && ( inst_rs1_D == rf_waddr_X ) && ( rf_waddr_X != 5'd0 )) bypass_sel_0 = 2'd1;
+    else if(val_D && rs1_en_D && val_M && rf_wen_M
+      && ( inst_rs1_D == rf_waddr_M ) && ( rf_waddr_M != 5'd0 )) bypass_sel_0 = 2'd2;
+    else if(val_D && rs1_en_D && val_W && rf_wen_W
+      && ( inst_rs1_D == rf_waddr_W ) && ( rf_waddr_W != 5'd0 )) bypass_sel_0 = 2'd3;
+    else bypass_sel_0 = 2'd0;
+
+end
+
+always_comb begin
+    if(val_D && rs2_en_D && val_X && rf_wen_X
+      && ( inst_rs2_D == rf_waddr_X ) && ( rf_waddr_X != 5'd0 )) bypass_sel_1 = 2'd1;
+    else if(val_D && rs2_en_D && val_M && rf_wen_M
+      && ( inst_rs2_D == rf_waddr_M ) && ( rf_waddr_M != 5'd0 )) bypass_sel_1 = 2'd2;
+    else if(val_D && rs2_en_D && val_W && rf_wen_W
+      && ( inst_rs2_D == rf_waddr_W ) && ( rf_waddr_W != 5'd0 )) bypass_sel_1 = 2'd3;
+    else bypass_sel_1 = 2'd0;
+
+end
 
   //----------------------------------------------------------------------
   // X stage
@@ -734,4 +753,4 @@ module lab2_proc_ProcBaseCtrl
 
 endmodule
 
-`endif /* LAB2_PROC_PROC_BASE_CTRL_V */
+`endif /* LAB2_PROC_PROC_ALT_CTRL_V */

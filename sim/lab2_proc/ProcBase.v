@@ -136,11 +136,14 @@ module lab2_proc_ProcBase
 
   logic [31:0] dmem_reqstream_enq_msg_addr;
 
-  assign dmem_reqstream_enq_msg.type_  = `VC_MEM_REQ_MSG_TYPE_READ;
+  logic [31:0] dmem_reqstream_enq_msg_data;   // write data
+
+  assign dmem_reqstream_enq_msg.type_  = (dmem_sel_X == 2'd2) ? `VC_MEM_REQ_MSG_TYPE_WRITE : `VC_MEM_REQ_MSG_TYPE_READ;
   assign dmem_reqstream_enq_msg.opaque = 8'b0;
   assign dmem_reqstream_enq_msg.addr   = dmem_reqstream_enq_msg_addr;
   assign dmem_reqstream_enq_msg.len    = 2'd0;
-  assign dmem_reqstream_enq_msg.data   = 32'b0;
+
+  assign dmem_reqstream_enq_msg.data   = dmem_reqstream_enq_msg_data;   // write data
 
   vc_Queue#(`VC_QUEUE_BYPASS,$bits(mem_req_4B_t),1) dmem_queue
   (
@@ -210,6 +213,24 @@ module lab2_proc_ProcBase
 
   logic [31:0] inst_D;
   logic        br_cond_eq_X;
+  logic br_cond_blt;
+  logic br_cond_bltu;
+
+  // imul control signals
+  logic imul_req_val_D;   // imul request valid
+  logic imul_req_rdy_D;   // imul request ready
+
+  logic imul_resp_val_X;   // imul response valid
+  logic imul_resp_rdy_X;   // imul response ready
+
+  // memory control port
+
+  logic [1:0] dmem_sel_X;
+
+  // JAL
+  logic jal_X;
+  logic jalr_X;
+
 
   //----------------------------------------------------------------------
   // Control Unit
@@ -238,9 +259,25 @@ module lab2_proc_ProcBase
     .proc2mngr_val            (proc2mngr_enq_val),
     .proc2mngr_rdy            (proc2mngr_enq_rdy),
 
+     // imul control ports
+    .imul_req_val_D   (imul_req_val_D),   // imul request valid
+    .imul_req_rdy_D   (imul_req_rdy_D),  // imul request ready
+
+    .imul_resp_val_X  (imul_resp_val_X),   // imul response valid
+    .imul_resp_rdy_X  (imul_resp_rdy_X),    // imul response ready
+
+    // memory control port
+    .dmem_sel_X(dmem_sel_X),
+
+    // JAL
+    .jal_X(jal_X),
+    .jalr_X(jalr_X),
+
+    
     // clk/reset/control/status signals
 
     .*
+
   );
 
   //----------------------------------------------------------------------
@@ -263,14 +300,28 @@ module lab2_proc_ProcBase
     .dmem_reqstream_msg_addr  (dmem_reqstream_enq_msg_addr),
     .dmem_respstream_msg_data (dmem_respstream_msg.data),
 
+    .dmem_reqstream_enq_msg_data (dmem_reqstream_enq_msg_data),
+
     // mngr communication ports
 
     .mngr2proc_data           (mngr2proc_msg),
     .proc2mngr_data           (proc2mngr_enq_msg),
 
+    // imul control ports
+    .imul_req_val_D   (imul_req_val_D),   // imul request valid
+    .imul_req_rdy_D   (imul_req_rdy_D),  // imul request ready
+
+    .imul_resp_val_X  (imul_resp_val_X),   // imul response valid
+    .imul_resp_rdy_X  (imul_resp_rdy_X),    // imul response ready
+
+    // JAL
+    .jal_X(jal_X),
+    .jalr_X(jalr_X),
+
     // clk/reset/control/status signals
 
     .*
+
   );
 
   //----------------------------------------------------------------------

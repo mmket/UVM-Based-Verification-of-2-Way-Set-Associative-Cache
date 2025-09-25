@@ -2,8 +2,8 @@
 // 5-Stage Simple Pipelined Processor Datapath
 //=========================================================================
 
-`ifndef LAB2_PROC_PROC_BASE_DPATH_V
-`define LAB2_PROC_PROC_BASE_DPATH_V
+`ifndef LAB2_PROC_PROC_ALT_DPATH_V
+`define LAB2_PROC_PROC_ALT_DPATH_V
 
 `include "vc/arithmetic.v"
 `include "vc/mem-msgs.v"
@@ -17,7 +17,7 @@
 
 `include "lab1_imul/IntMulAlt.v"
 
-module lab2_proc_ProcBaseDpath
+module lab2_proc_ProcAltDpath
 #(
   parameter p_num_cores = 1
 )
@@ -90,7 +90,11 @@ module lab2_proc_ProcBaseDpath
 
   // JAL
   input logic jal_X,
-  input logic jalr_X
+  input logic jalr_X,
+
+  // bypass control
+  input logic [1:0] bypass_sel_0,
+  input logic [1:0] bypass_sel_1
 
 );
 
@@ -190,6 +194,12 @@ module lab2_proc_ProcBaseDpath
   logic [31:0] rf_rdata1_D;
   logic [31:0] rf_wdata_W;
 
+
+  // bypassed path
+  logic [31:0] rf_rdata0_D_bypassed;
+  logic [31:0] rf_rdata1_D_bypassed;
+
+
   vc_Regfile_2r1w_zero rf
   (
     .clk      (clk),
@@ -202,6 +212,33 @@ module lab2_proc_ProcBaseDpath
     .wr_addr  (rf_waddr_W),
     .wr_data  (rf_wdata_W)
   );
+
+// bypass path
+
+  always_comb begin
+    case(bypass_sel_0)
+        2'd0: rf_rdata0_D_bypassed = rf_rdata0_D;
+        2'd1: rf_rdata0_D_bypassed = ex_result_X;
+        2'd2: rf_rdata0_D_bypassed = wb_result_M;
+        2'd3: rf_rdata0_D_bypassed = wb_result_W;
+        default: rf_rdata0_D_bypassed = rf_rdata0_D;
+
+    endcase
+  end
+
+
+  always_comb begin
+    case(bypass_sel_1)
+        2'd0: rf_rdata1_D_bypassed = rf_rdata1_D;
+        2'd1: rf_rdata1_D_bypassed = ex_result_X;
+        2'd2: rf_rdata1_D_bypassed = wb_result_M;
+        2'd3: rf_rdata1_D_bypassed = wb_result_W;
+        default: rf_rdata1_D_bypassed = rf_rdata1_D;
+
+    endcase
+  end
+
+  //
 
   logic [31:0] op2_D;
 
@@ -225,7 +262,7 @@ module lab2_proc_ProcBaseDpath
   // csrr sel mux. Basically we are using two muxes here for pedagogy.
   vc_Mux3#(32) op2_sel_mux_D
   (
-    .in0  (rf_rdata1_D),
+    .in0  (rf_rdata1_D_bypassed),
     .in1  (imm_D),
     .in2  (csrr_data_D),
     .sel  (op2_sel_D),
@@ -247,7 +284,7 @@ module lab2_proc_ProcBaseDpath
 
   assign op1_sel_D = (imm_type_D == 3'd3);  // AUIPC
 
-  assign op1_D = op1_sel_D ? pc_D : rf_rdata0_D;
+  assign op1_D = op1_sel_D ? pc_D : rf_rdata0_D_bypassed;
 
   //--------------------------------------------------------------------
   // X stage
@@ -306,7 +343,7 @@ module lab2_proc_ProcBaseDpath
 
     .istream_val(imul_req_val_D),
     .istream_rdy(imul_req_rdy_D),
-    .istream_msg({rf_rdata0_D, op2_D}),
+    .istream_msg({rf_rdata0_D_bypassed, op2_D}),
 
     .ostream_val(imul_resp_val_X),
     .ostream_rdy(imul_resp_rdy_X),
@@ -330,11 +367,12 @@ module lab2_proc_ProcBaseDpath
     else ex_result_X = alu_result_X;
   end
 
+
   // dmem_write_data_reg_X
 
   always @(posedge clk) begin
     if(reset) dmem_reqstream_enq_msg_data <= 32'b0;
-    else dmem_reqstream_enq_msg_data <= rf_rdata1_D;
+    else dmem_reqstream_enq_msg_data <= rf_rdata1_D_bypassed;
   end
 
   assign dmem_reqstream_msg_addr = alu_result_X;

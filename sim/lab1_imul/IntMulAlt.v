@@ -31,7 +31,7 @@ logic [1:0] state, next_state;
 logic [5:0] counter;
 logic stop;
 
-always @(*) begin
+always_comb begin
   case(state)
     IDLE: next_state = (istream_val && istream_rdy) ? CALC : IDLE;
     CALC: next_state = stop ? DONE : CALC;
@@ -40,12 +40,12 @@ always @(*) begin
   endcase
 end
 
-always @(posedge clk or posedge reset) begin
+always_ff @(posedge clk) begin
   if(reset) state <= IDLE;
   else state <= next_state;
 end
 
-always @(posedge clk or posedge reset) begin
+always_ff @(posedge clk) begin
   if(reset) counter <= 6'b0;
   else if(state == CALC) counter <= counter + index;
   else counter <= 6'b0;
@@ -54,7 +54,7 @@ end
 // Shake Hand
 assign istream_rdy = (state == IDLE);
 
-always @(posedge clk or posedge reset) begin
+always_ff @(posedge clk) begin
   if(reset) begin
     ostream_msg <= 32'b0;
     ostream_val <= 1'b0;
@@ -72,7 +72,7 @@ end
 // Reordering
 logic [31:0] b_message, a_message;
 
-always @(*) begin
+always_comb begin
   case({istream_msg[31], istream_msg[63]})
     2'b00: begin    // pos pos
       if($signed(istream_msg[31:0] > istream_msg[63:32])) begin
@@ -114,21 +114,21 @@ logic [5:0] index;
 logic [31:0] a_reg, b_reg;
 logic [31:0] result_reg;
 
-always @(posedge clk or posedge reset) begin
+always_ff @(posedge clk) begin
   if(reset) b_reg <= 32'b0;
   else if(istream_val && istream_rdy) b_reg <= b_message;
   else if(state == CALC) b_reg <= $signed(b_reg >>> index);
   else b_reg <= b_reg;
 end
 
-always @(posedge clk or posedge reset) begin
+always_ff @(posedge clk) begin
   if(reset) a_reg <= 32'b0;
   else if(istream_val && istream_rdy) a_reg <= a_message;
   else if(state == CALC) a_reg <= $signed(a_reg <<< index);
   else a_reg <= a_reg;
 end
 
-always @(posedge clk or posedge reset) begin
+always_ff @(posedge clk) begin
   if(reset) result_reg <= 32'b0;
   else if(state == CALC) result_reg <= b_reg[0] ? $signed(result_reg + a_reg) : result_reg;
   else result_reg <= 32'b0;
@@ -136,7 +136,7 @@ end
 
 
 // Look Up Table
-always @(*) begin
+always_comb begin
     casez(b_reg)
         32'b??????????????????????????????1?: index = 6'd1;
         32'b?????????????????????????????10?: index = 6'd2;

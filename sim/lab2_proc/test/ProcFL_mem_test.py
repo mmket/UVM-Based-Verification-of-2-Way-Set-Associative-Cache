@@ -51,6 +51,10 @@ class Tests:
 
   @pytest.mark.parametrize( "name,test", [
     asm_test( inst_sw.gen_basic_test     ),
+   # asm_test( inst_sw.gen_base_dep_test  ) ,
+   # asm_test( inst_sw.gen_srcs_dest_test ) ,
+   # asm_test( inst_sw.gen_addr_test      ) ,
+   # asm_test( inst_sw.gen_random_test    ) ,
 
     # ''' LAB TASK '''''''''''''''''''''''''''''''''''''''''''''''''''''''
     # Add more rows to the test case table to test more complicated
@@ -63,4 +67,3 @@ class Tests:
   # ''' LAB TASK '''''''''''''''''''''''''''''''''''''''''''''''''''''''''
   # random stall and delay
   # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
