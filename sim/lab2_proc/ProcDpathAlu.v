@@ -46,16 +46,6 @@ module lab2_proc_ProcDpathAlu
   assign ops_lt = ($signed(in0) < $signed(in1));                     // BLT
   assign ops_ltu = (in0 < in1);                                      // BLT
 
-  // vc_EqComparator #(32) cond_eq_comp
-  // (
-  //   .in0  (in0),
-  //   .in1  (in1),
-  //   .out  (ops_eq)
-  // );
-
-  // assign ops_lt = $signed(in0) < $signed(in1);
-  // assign ops_ltu = in0 < in1;
-
 endmodule
 
 `endif /* LAB2_PROC_PROC_DPATH_ALU_V */

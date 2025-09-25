@@ -58,9 +58,6 @@ module lab2_proc_ProcBase
   input  logic         dmem_respstream_val,
   output logic         dmem_respstream_rdy,
 
-  // extra ports; note that core_id is an input port rather than a
-  // parameter so that the module only needs to be compiled once. If it
-  // were a parameter, each core would be compiled separately.
 
   input  logic [31:0]  core_id,
   output logic         commit_inst,
@@ -395,8 +392,6 @@ module lab2_proc_ProcBase
   end
   `VC_TRACE_END
 
-  // These trace modules are useful because they breakout all the
-  // individual fields so you can see them in gtkwave
 
   vc_MemReqMsg4BTrace imem_reqstream_trace
   (

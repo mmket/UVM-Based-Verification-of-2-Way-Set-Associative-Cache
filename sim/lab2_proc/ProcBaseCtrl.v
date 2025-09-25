@@ -88,42 +88,12 @@ module lab2_proc_ProcBaseCtrl
 
 );
 
-  //----------------------------------------------------------------------
-  // Notes
-  //----------------------------------------------------------------------
-  // We follow this principle to organize code for each pipeline stage in
-  // the control unit.  Register enable logics should always at the
-  // beginning. It followed by pipeline registers. Then logic that is not
-  // dependent on stall or squash signals. Then logic that is dependent
-  // on stall or squash signals. At the end there should be signals meant
-  // to be passed to the next stage in the pipeline.
-
-  //----------------------------------------------------------------------
-  // Valid, stall, and squash signals
-  //----------------------------------------------------------------------
-  // We use valid signal to indicate if the instruction is valid.  An
-  // instruction can become invalid because of being squashed or
-  // stalled. Notice that invalid instructions are microarchitectural
-  // events, they are different from archtectural no-ops. We must be
-  // careful about control signals that might change the state of the
-  // processor. We should always AND outgoing control signals with valid
-  // signal.
-
   logic val_F;
   logic val_D;
   logic val_X;
   logic val_M;
   logic val_W;
 
-  // Managing the stall and squash signals is one of the most important,
-  // yet also one of the most complex, aspects of designing a pipelined
-  // processor. We will carefully use four signals per stage to manage
-  // stalling and squashing: ostall_A, osquash_A, stall_A, and squash_A.
-  //
-  // We denote the stall signals _originating_ from stage A as
-  // ostall_A. For example, if stage A can stall due to a pipeline
-  // harzard, then ostall_A would need to factor in the stalling
-  // condition for this pipeline harzard.
 
   logic ostall_F;  // can ostall due to imem_respstream_val
   logic ostall_D;  // can ostall due to mngr2proc_val or other hazards
@@ -131,9 +101,6 @@ module lab2_proc_ProcBaseCtrl
   logic ostall_M;  // can ostall due to dmem_respstream_val
   logic ostall_W;  // can ostall due to proc2mngr_rdy
 
-  // The stall_A signal should be used to indicate when stage A is indeed
-  // stalling. stall_A will be a function of ostall_A and all the ostall
-  // signals of stages in front of it in the pipeline.
 
   logic stall_F;
   logic stall_D;
@@ -141,18 +108,8 @@ module lab2_proc_ProcBaseCtrl
   logic stall_M;
   logic stall_W;
 
-  // We denote the squash signals _originating_ from stage A as
-  // osquash_A. For example, if stage A needs to squash the stages behind
-  // A in the pipeline, then osquash_A would need to factor in this
-  // squash condition.
-
   logic osquash_D; // can osquash due to unconditional jumps
   logic osquash_X; // can osquash due to taken branches
-
-  // The squash_A signal should be used to indicate when stage A is being
-  // squashed. squash_A will _not_ be a function of osquash_A, since
-  // osquash_A means to squash the stages _behind_ A in the pipeline, but
-  // not to squash A itself.
 
   logic squash_F;
   logic squash_D;
@@ -202,11 +159,6 @@ module lab2_proc_ProcBaseCtrl
   // We drop the mem response when we are getting squashed
 
   assign imem_respstream_drop = squash_F;
-
-  // imem is very special. Actually imem requests are sent before the F
-  // stage. Note that we need to factor in reset to the imem_reqstream_val
-  // signal because we don't want to send out imem request when we are
-  // resetting.
 
   assign imem_reqstream_val  = ( !stall_F || squash_F ) && !reset;
   assign imem_respstream_rdy = !stall_F || squash_F;
@@ -591,8 +543,7 @@ module lab2_proc_ProcBaseCtrl
 
   assign ostall_X = val_X && ( dmem_type_X != nr ) && !dmem_reqstream_rdy;
 
-  // osquash due to taken branch, notice we can't osquash if current
-  // stage stalls, otherwise we will send osquash twice.
+  // osquash due to taken branch
   logic osquash_jalr_X;
   assign osquash_jalr_X = (br_type_X == br_jalr);
 

@@ -221,8 +221,6 @@ module lab2_proc_ProcBaseDpath
   );
 
   // op2 select mux
-  // This mux chooses among RS2, imm, and the output of the above csrr
-  // csrr sel mux. Basically we are using two muxes here for pedagogy.
   vc_Mux3#(32) op2_sel_mux_D
   (
     .in0  (rf_rdata1_D),
@@ -390,8 +388,6 @@ module lab2_proc_ProcBaseDpath
   assign rf_wdata_W = wb_result_W;
 
   // stats output
-  // note the stats en is full 32-bit here but the outside port is one
-  // bit.
 
   logic [31:0] stats_en_W;
 
