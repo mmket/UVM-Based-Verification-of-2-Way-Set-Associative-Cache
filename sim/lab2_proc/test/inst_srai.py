@@ -45,10 +45,6 @@ def gen_basic_test():
     nop
   """
 
-# ''' LAB TASK ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-# Define additional directed and random test cases.
-# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
 #-------------------------------------------------------------------------
 # gen_dest_dep_test
 #-------------------------------------------------------------------------
@@ -124,21 +120,21 @@ def gen_src_eq_dest_test():
 def gen_value_test():
   return [
 
-    # 正数移位
+    # 
     gen_rimm_value_test( "srai", 0x00000010, 0, 0x00000010 ), 
     gen_rimm_value_test( "srai", 0x00000010, 1, 0x00000008 ),
     gen_rimm_value_test( "srai", 0x00000010, 4, 0x00000001 ),
 
-    # 负数移位
+    # 
     gen_rimm_value_test( "srai", -0x00000010 & 0xffffffff, 1, 0xfffffff8 ),
     gen_rimm_value_test( "srai", -0x00000010 & 0xffffffff, 4, 0xfffffffe ),
 
-    # 边界测试
+    # 
     gen_rimm_value_test( "srai", 0x7fffffff, 31, 0x00000001 ), 
     gen_rimm_value_test( "srai", 0x80000000, 31, 0xffffffff ), 
     gen_rimm_value_test( "srai", 0xffffffff, 31, 0xffffffff ), 
 
-    # 移位截断
+    #
     gen_rimm_value_test( "srai", 0x00000010, 32, 0x00000010 ), 
     gen_rimm_value_test( "srai", 0x00000010, 33, 0x00000008 ), 
   ]

@@ -8,19 +8,8 @@ import os
 
 from subprocess import check_call, CalledProcessError
 
-impls  = [ "fl" ]
+impls  = [ "fl", "base", "alt" ]
 inputs = [ "vvadd-unopt", "vvadd-opt", "cmult", "mfilt", "bsearch" ]
-
-# ''' LAB TASK '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-# Once you get your baseline and alternative design passing all of your
-# tests and once you have your processor working, then update the impls
-# list to include "base" and "alt" so that this test case will help make
-# sure your simulator is always working. You can do that by adding
-# something like this:
-#
-#  impls += [ "base", "alt" ]
-#
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 test_cases = []
 for input_ in inputs:

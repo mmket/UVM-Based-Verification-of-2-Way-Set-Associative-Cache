@@ -46,9 +46,6 @@ def gen_basic_test():
     nop
   """
 
-# ''' LAB TASK ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-# Define additional directed and random test cases.
-# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 def gen_dest_dep_test():
   return [
@@ -150,6 +147,6 @@ def gen_random_test():
   for i in range(100):
     src0 = b32( random.randint(0,0xffffffff) )
     src1 = b32( random.randint(0,31) )  
-    dest = b32( (src0.uint() << src1.uint()) & 0xffffffff )
+    dest = b32( (src0.uint() << src1[4:0].uint()) & 0xffffffff )
     asm_code.append( gen_rr_value_test( "sll", src0.uint(), src1[4:0].uint(), dest.uint() ) )
   return asm_code

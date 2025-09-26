@@ -534,6 +534,7 @@ def gen_ld_template(
     **locals()
   )
 
+
 #-------------------------------------------------------------------------
 # gen_ld_dest_dep_test
 #-------------------------------------------------------------------------
@@ -572,4 +573,111 @@ def gen_ld_base_eq_dest_test( inst, base, result ):
 def gen_ld_value_test( inst, offset, base, result ):
   return gen_ld_template( 0, 0, "x1", inst, offset, base, result )
 
+
+
 # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+def gen_br2_src0_dep_test( num_nops, inst, src0, src1, result ):
+  return gen_br2_template( num_nops, 0, "x1", "x2",
+                           inst, src0, src1, result )
+
+def gen_sd_template(
+  num_nops_base, num_nops_dest,
+  reg_base,
+  inst, offset, base, result
+):
+  return """
+
+    # Move base value into register
+    csrr {reg_base}, mngr2proc < {base}
+    {nops_base}
+    csrr {reg_base}, mngr2proc < {base}
+    {nops_base}
+
+    # Instruction under test
+    {inst} x3, {offset}({reg_base})
+    {nops_dest}
+
+    # Instruction under test
+    {inst} x4, {offset}({reg_base})
+    {nops_dest}
+
+    # Check the result
+    csrw proc2mngr, x4 > {result}
+
+  """.format(
+    nops_base = gen_nops(num_nops_base),
+    nops_dest = gen_nops(num_nops_dest),
+    **locals()
+  )
+
+#-------------------------------------------------------------------------
+# gen_sd_dest_dep_test
+#-------------------------------------------------------------------------
+# Test the destination bypass path by varying how many nops are
+# inserted between the store instruction and reading back from memory.
+
+def gen_sd_dest_dep_test( num_nops, inst_s, inst_l, base, data ):
+  return f"""
+
+    # Move base address into register x1
+    csrr x1, mngr2proc < {base}
+
+    # Move data to be stored into register x2
+    csrr x2, mngr2proc < {data}
+
+    # Instruction under test: store
+    {inst_s} x2, 0(x1)
+    {gen_nops(num_nops)}
+
+    # Load back from memory to check result
+    {inst_l} x3, 0(x1)
+
+    # Verify the loaded value matches expected data
+    csrw proc2mngr, x3 > {data}
+  """
+
+def gen_sd_base_dep_test( num_nops, inst_s, inst_l, base, data ):
+  return f"""
+
+    # Move base address into register x1
+    csrr x1, mngr2proc < {base}
+
+    # Move data to be stored into register x2
+    csrr x2, mngr2proc < {data}
+
+    # Instruction under test: store
+    {inst_s} x2, 0(x1)
+    {gen_nops(num_nops)}
+
+    # Load back from memory to check result
+    {inst_l} x3, 0(x1)
+
+    # Verify the loaded value matches expected data
+    csrw proc2mngr, x3 > {data}
+  """
+
+def gen_sd_base_eq_dest_test( inst_s, inst_l, base, data ):
+  return f"""
+    # Move base address into x1 (also used as dest)
+    csrr x1, mngr2proc < {base}
+    csrr x2, mngr2proc < {data}
+
+    # Store data to memory[base]
+    {inst_s} x2, 0(x1)
+
+    # Load back from the same base register
+    {inst_l} x1, 0(x1)
+
+    # Check the result
+    csrw proc2mngr, x1 > {data}
+  """
+
+def gen_sd_value_test( inst_s, inst_l, offset, base, data, num_nops=0 ):
+    return f"""
+      csrr x1, mngr2proc < {base}
+      csrr x2, mngr2proc < {data}
+      {inst_s} x2, {offset}(x1)
+      {gen_nops(num_nops)}
+      {inst_l} x3, {offset}(x1)
+      csrw proc2mngr, x3 > {data}
+    """

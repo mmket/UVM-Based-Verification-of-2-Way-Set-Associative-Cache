@@ -33,38 +33,32 @@ class Tests:
   @pytest.mark.parametrize( "name,test", [
     asm_test( inst_jal.gen_basic_test        ) ,
     asm_test( inst_jal.gen_multijump_test       ) ,
-    # asm_test( inst_jal.gen_data_test       ) ,
-    
-
-    # ''' LAB TASK '''''''''''''''''''''''''''''''''''''''''''''''''''''''
-    # Add more rows to the test case table to test more complicated
-    # scenarios.
-    # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    asm_test( inst_jal.gen_data_test       ) ,
+    asm_test( inst_jal.gen_back_to_back_test      ) ,
+    asm_test( inst_jal.gen_random_test      ) , 
   ])
 
   def test_jal( s, name, test ):
     run_test( s.ProcType, test, cmdline_opts=s.__class__.cmdline_opts )
 
-  # ''' LAB TASK '''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-  # random stall and delay
-  # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
+  def test_jal_delays( s ):
+    run_test( s.ProcType, inst_jal.gen_random_test, delays=True,
+              cmdline_opts=s.__class__.cmdline_opts )
   #-----------------------------------------------------------------------
   # jalr
   #-----------------------------------------------------------------------
 
   @pytest.mark.parametrize( "name,test", [
     asm_test( inst_jalr.gen_basic_test    ),
-
-    # ''' LAB TASK '''''''''''''''''''''''''''''''''''''''''''''''''''''''
-    # Add more rows to the test case table to test more complicated
-    # scenarios.
-    # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    asm_test( inst_jalr.gen_data_test    ),
+    asm_test( inst_jalr.gen_multijump_test    ),
+    asm_test( inst_jalr.gen_back_to_back_test      ) ,
+    asm_test( inst_jalr.gen_random_test      ) , 
   ])
 
   def test_jalr( s, name, test ):
     run_test( s.ProcType, test, cmdline_opts=s.__class__.cmdline_opts )
 
-  # ''' LAB TASK '''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-  # random stall and delay
-  # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+  def test_jalr_delays( s ):
+    run_test( s.ProcType, inst_jalr.gen_random_test, delays=True,
+              cmdline_opts=s.__class__.cmdline_opts )

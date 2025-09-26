@@ -126,7 +126,7 @@ module lab2_proc_ProcAltCtrl
 
   // Register enable logic
 
-  assign reg_en_F = !stall_F || squash_F;
+  assign reg_en_F = (!stall_F || squash_F);
 
   // Pipeline registers
 
@@ -147,8 +147,8 @@ module lab2_proc_ProcAltCtrl
   always_comb begin
     if ( pc_redirect_X )   // If a branch is taken in X stage
       pc_sel_F = pc_sel_X; // Use pc from X
-    else if(br_type_D == br_jal) pc_sel_F = 2'd2;
-    else if(br_type_X == br_jalr) pc_sel_F = 2'd3;
+    else if(val_X && (br_type_X == br_jalr)) pc_sel_F = 2'd3;
+    else if(val_D && (br_type_D == br_jal)) pc_sel_F = 2'd2;
     else
       pc_sel_F = 2'b0;     // Use pc+4
   end
@@ -463,7 +463,7 @@ module lab2_proc_ProcAltCtrl
 
   // osquash due to jump instruction in D stage (not implemented yet)
 
-  assign osquash_D = (br_type_D == br_jal);
+  assign osquash_D = val_D && (br_type_D == br_jal);
 
   // stall and squash in D
 
@@ -567,10 +567,10 @@ end
   // osquash due to taken branch, notice we can't osquash if current
   // stage stalls, otherwise we will send osquash twice.
   logic osquash_jalr_X;
-  assign osquash_jalr_X = (br_type_X == br_jalr);
+  assign osquash_jalr_X = val_X && (br_type_X == br_jalr);
 
   logic osquash_br_X;
-  assign osquash_br_X = ((br_type_X == br_bne) && !br_cond_eq_X);  // branches
+  assign osquash_br_X = val_X && ((br_type_X == br_bne) && !br_cond_eq_X);  // branches
   
 
   assign osquash_X = val_X && !stall_X && (pc_redirect_X || osquash_jalr_X || osquash_br_X);

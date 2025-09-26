@@ -53,13 +53,6 @@ def gen_basic_test():
 
   """
 
-# ''' LAB TASK ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-# Define additional directed and random test cases.
-# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-# ''' LAB TASK ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-# Define additional directed and random test cases.
-# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
 def gen_src0_dep_taken_test():
   return [
     gen_br2_src0_dep_test( 5, "bltu", 1, 7, True ),  

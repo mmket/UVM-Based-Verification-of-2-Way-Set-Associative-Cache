@@ -42,21 +42,14 @@ class Tests:
     asm_test( inst_addi.gen_src_eq_dest_test     ) ,
     asm_test( inst_addi.gen_value_test     ) ,
     asm_test( inst_addi.gen_random_test     ) ,
-    asm_test( inst_addi.gen_src_dep_test     ) ,   
+    asm_test( inst_addi.gen_src_dep_test     ) ,  
     asm_test( inst_addi.gen_src_imm_dep_test    ) ,
-    # ''' LAB TASK '''''''''''''''''''''''''''''''''''''''''''''''''''''''
-    # Add more rows to the test case table to test more complicated
-    # scenarios.
-    # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
   ])
   def test_addi( s, name, test ):
     run_test( s.ProcType, test, cmdline_opts=s.__class__.cmdline_opts )
 
-  # ''' LAB TASK '''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-  # random stall and delay
-  # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
   def test_addi_delays( s ):
-    run_test( s.ProcType, inst_ori.gen_random_test, delays=True,
+    run_test( s.ProcType, inst_addi.gen_random_test, delays=True,
               cmdline_opts=s.__class__.cmdline_opts )
   #-----------------------------------------------------------------------
   # ori
@@ -87,20 +80,14 @@ class Tests:
     asm_test( inst_addi.gen_src_eq_dest_test     ) ,
     asm_test( inst_addi.gen_value_test     ) ,
     asm_test( inst_addi.gen_random_test     ) ,
-    asm_test( inst_addi.gen_dest_dep_test     ) ,   
-
-    # ''' LAB TASK '''''''''''''''''''''''''''''''''''''''''''''''''''''''
-    # Add more rows to the test case table to test more complicated
-    # scenarios.
-    # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    asm_test( inst_addi.gen_dest_dep_test     ) ,  
   ])
   def test_slti( s, name, test ):
     run_test( s.ProcType, test, cmdline_opts=s.__class__.cmdline_opts )
 
-  # ''' LAB TASK '''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-  # random stall and delay
-  # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
+  def test_slti_delays( s ):
+    run_test( s.ProcType, inst_slti.gen_random_test, delays=True,
+              cmdline_opts=s.__class__.cmdline_opts )
 
   #-----------------------------------------------------------------------
   # srai
@@ -112,20 +99,15 @@ class Tests:
     asm_test( inst_addi.gen_src_eq_dest_test     ) ,
     asm_test( inst_addi.gen_value_test     ) ,
     asm_test( inst_addi.gen_random_test     ) ,
-    asm_test( inst_addi.gen_src_dep_test     ) ,   
+    asm_test( inst_addi.gen_src_dep_test     ) ,  
     asm_test( inst_addi.gen_src_imm_dep_test    ) ,
-    # ''' LAB TASK '''''''''''''''''''''''''''''''''''''''''''''''''''''''
-    # Add more rows to the test case table to test more complicated
-    # scenarios.
-    # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
   ])
   def test_srai( s, name, test ):
     run_test( s.ProcType, test, cmdline_opts=s.__class__.cmdline_opts )
 
-  # ''' LAB TASK '''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-  # random stall and delay
-  # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
+  def test_srai_delays( s ):
+    run_test( s.ProcType, inst_srai.gen_random_test, delays=True,
+              cmdline_opts=s.__class__.cmdline_opts )
   #-----------------------------------------------------------------------
   # slli
   #-----------------------------------------------------------------------
@@ -137,21 +119,15 @@ class Tests:
     asm_test( inst_slli.gen_src_eq_dest_test     ) ,
     asm_test( inst_slli.gen_value_test     ) ,
     asm_test( inst_slli.gen_random_test     ) ,
-    asm_test( inst_slli.gen_src_dep_test     ) ,   
+    asm_test( inst_slli.gen_src_dep_test     ) ,  
     asm_test( inst_slli.gen_src_imm_dep_test    ) ,
-
-    # ''' LAB TASK '''''''''''''''''''''''''''''''''''''''''''''''''''''''
-    # Add more rows to the test case table to test more complicated
-    # scenarios.
-    # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
   ])
   def test_slli( s, name, test ):
     run_test( s.ProcType, test, cmdline_opts=s.__class__.cmdline_opts )
 
-  # ''' LAB TASK '''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-  # random stall and delay
-  # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
+  def test_slli_delays( s ):
+    run_test( s.ProcType, inst_slli.gen_random_test, delays=True,
+              cmdline_opts=s.__class__.cmdline_opts )
   #-----------------------------------------------------------------------
   # lui
   #-----------------------------------------------------------------------
@@ -164,18 +140,13 @@ class Tests:
     asm_test( inst_lui.gen_basic_b_test  ) ,
     asm_test( inst_lui.gen_basic_c_test   ) ,
     asm_test( inst_lui.gen_src_dep_test  ) ,
-    # ''' LAB TASK '''''''''''''''''''''''''''''''''''''''''''''''''''''''
-    # Add more rows to the test case table to test more complicated
-    # scenarios.
-    # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
   ])
   def test_lui( s, name, test ):
     run_test( s.ProcType, test, cmdline_opts=s.__class__.cmdline_opts )
 
-  # ''' LAB TASK '''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-  # random stall and delay
-  # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
+  def test_lui_delays( s ):
+    run_test( s.ProcType, inst_lui.gen_random_test, delays=True,
+              cmdline_opts=s.__class__.cmdline_opts )
   #-----------------------------------------------------------------------
   # auipc
   #-----------------------------------------------------------------------
@@ -193,17 +164,13 @@ class Tests:
     asm_test( inst_auipc.gen_src_dep_c_test    ),
     asm_test( inst_auipc.gen_src_dep_d_test    ),
     asm_test( inst_auipc.gen_src_dep_e_test    ),
-    asm_test( inst_auipc.gen_src_dep_f_test    ), 
+    asm_test( inst_auipc.gen_src_dep_f_test    ),
     asm_test( inst_auipc.gen_value_test    ),
     asm_test( inst_auipc.gen_random_test    ),
-    # ''' LAB TASK '''''''''''''''''''''''''''''''''''''''''''''''''''''''
-    # Add more rows to the test case table to test more complicated
-    # scenarios.
-    # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
   ])
   def test_auipc( s, name, test ):
     run_test( s.ProcType, test, cmdline_opts=s.__class__.cmdline_opts )
 
-  # ''' LAB TASK '''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-  # random stall and delay
-  # '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+  def test_auipc_delays( s ):
+    run_test( s.ProcType, inst_auipc.gen_random_test, delays=True,
+              cmdline_opts=s.__class__.cmdline_opts )
