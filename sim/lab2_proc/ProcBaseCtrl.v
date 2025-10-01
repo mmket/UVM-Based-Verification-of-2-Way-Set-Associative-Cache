@@ -456,7 +456,7 @@ module lab2_proc_ProcBaseCtrl
 
   logic ostall_imul_D;
 
-  assign ostall_imul_D = !imul_req_rdy_D;   // stall if imul is not ready
+  assign ostall_imul_D = val_D && !imul_req_rdy_D;   // stall if imul is not ready
 
   // Final ostall signal
 
@@ -556,7 +556,7 @@ module lab2_proc_ProcBaseCtrl
   // stall for imul
   logic ostall_imul_X;
 
-  assign ostall_imul_X = !imul_resp_val_X && (alu_fn_X == alu_mul);      // stall while imul is processing
+  assign ostall_imul_X = val_X && !imul_resp_val_X && (alu_fn_X == alu_mul);      // stall while imul is processing
 
   // stall and squash used in X stage
 
@@ -572,17 +572,17 @@ module lab2_proc_ProcBaseCtrl
   assign next_val_X = val_X && !stall_X;
 
   // imul control signal
-  assign imul_req_val_D = (alu_fn_D == alu_mul);    // if alu is called for multiply, valid the request
+  assign imul_req_val_D = (!stall_D && !squash_D) && (alu_fn_D == alu_mul);    // if alu is called for multiply, valid the request
 
-  assign imul_resp_rdy_X = (alu_fn_X == alu_mul);   // ready to take the response if alu is mul
+  assign imul_resp_rdy_X = !stall_X && (alu_fn_X == alu_mul);   // ready to take the response if alu is mul
 
   // memory select port
 
   assign dmem_sel_X = dmem_type_X;
 
   // JAL
-  assign jal_X = (br_type_X == br_jal); 
-  assign jalr_X = (br_type_X == br_jalr); 
+  assign jal_X = val_X && (br_type_X == br_jal); 
+  assign jalr_X = val_X && (br_type_X == br_jalr); 
   
 
   //----------------------------------------------------------------------
