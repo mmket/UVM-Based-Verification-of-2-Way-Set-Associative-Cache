@@ -14,6 +14,7 @@ from lab2_proc.ProcFL import ProcFL
 
 from lab2_proc.test import inst_jal
 from lab2_proc.test import inst_jalr
+from lab2_proc.test import inst_mix 
 
 #-------------------------------------------------------------------------
 # Tests
@@ -60,5 +61,22 @@ class Tests:
     run_test( s.ProcType, test, cmdline_opts=s.__class__.cmdline_opts )
 
   def test_jalr_delays( s ):
+    run_test( s.ProcType, inst_jalr.gen_random_test, delays=True,
+              cmdline_opts=s.__class__.cmdline_opts )
+    
+    
+  @pytest.mark.parametrize( "name,test", [
+    asm_test( inst_mix.gen_branch_1    ),
+    asm_test( inst_mix.gen_branch_2    ),
+    asm_test( inst_mix.gen_branch_3    ),
+    asm_test( inst_mix.gen_branch_4    ),
+    asm_test( inst_mix.gen_branch_5    ),
+    asm_test( inst_mix.gen_branch_6    ),
+  ])
+
+  def test_mix( s, name, test ):
+    run_test( s.ProcType, test, cmdline_opts=s.__class__.cmdline_opts )
+
+  def test_mix_delays( s ):
     run_test( s.ProcType, inst_jalr.gen_random_test, delays=True,
               cmdline_opts=s.__class__.cmdline_opts )

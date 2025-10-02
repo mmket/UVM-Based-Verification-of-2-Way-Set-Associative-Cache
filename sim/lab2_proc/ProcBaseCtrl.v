@@ -572,9 +572,9 @@ module lab2_proc_ProcBaseCtrl
   assign next_val_X = val_X && !stall_X;
 
   // imul control signal
-  assign imul_req_val_D = (!stall_D && !squash_D) && (alu_fn_D == alu_mul);    // if alu is called for multiply, valid the request
+  assign imul_req_val_D = val_D && (!stall_D && !squash_D) && (alu_fn_D == alu_mul);    // if alu is called for multiply, valid the request
 
-  assign imul_resp_rdy_X = !stall_X && (alu_fn_X == alu_mul);   // ready to take the response if alu is mul
+  assign imul_resp_rdy_X = val_X && !stall_X && (alu_fn_X == alu_mul);   // ready to take the response if alu is mul
 
   // memory select port
 

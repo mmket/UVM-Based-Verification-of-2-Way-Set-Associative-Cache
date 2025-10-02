@@ -485,7 +485,6 @@ always_comb begin
     else if(val_D && rs1_en_D && val_W && rf_wen_W
       && ( inst_rs1_D == rf_waddr_W ) && ( rf_waddr_W != 5'd0 )) bypass_sel_0 = 2'd3;
     else bypass_sel_0 = 2'd0;
-
 end
 
 always_comb begin
@@ -496,7 +495,6 @@ always_comb begin
     else if(val_D && rs2_en_D && val_W && rf_wen_W
       && ( inst_rs2_D == rf_waddr_W ) && ( rf_waddr_W != 5'd0 )) bypass_sel_1 = 2'd3;
     else bypass_sel_1 = 2'd0;
-
 end
 
   //----------------------------------------------------------------------
@@ -594,9 +592,9 @@ end
   assign next_val_X = val_X && !stall_X;
 
   // imul control signal
-  assign imul_req_val_D = (!stall_D && !squash_D) && (alu_fn_D == alu_mul);    // if alu is called for multiply, valid the request
+  assign imul_req_val_D = val_D && (!stall_D && !squash_D) && (alu_fn_D == alu_mul);    // if alu is called for multiply, valid the request
 
-  assign imul_resp_rdy_X = !stall_X && (alu_fn_X == alu_mul);   // ready to take the response if alu is mul
+  assign imul_resp_rdy_X = val_X && !stall_X && (alu_fn_X == alu_mul);   // ready to take the response if alu is mul
 
   // memory select port
 
