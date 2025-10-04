@@ -81,9 +81,11 @@ def gen_branch_3():
 
     
         bne x3, x1, hello
+        lw   x3, 0(x1)
     
     helo:
         bne x3, x1, label_a
+        sw   x3, 0(x1)
 
     helloworld:
         bne x3, x1, hworld
@@ -93,6 +95,7 @@ def gen_branch_3():
 
     hworld:
         jal x4, helo
+        lw   x3, 0(x1)
 
     label_a:
     addi  x3, x3, 0b10
@@ -221,6 +224,7 @@ def gen_branch_6():
         lui   x10, 0x00000
         addi  x10, x10, 0x020C  
         jalr  x9, x10, 0
+        lw   x3, 0(x1)
 
 
         mul x9, x3, x1
