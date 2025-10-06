@@ -479,7 +479,7 @@ module lab2_proc_ProcAltCtrl
 
 always_comb begin
     if(val_D && rs1_en_D && val_X && rf_wen_X
-      && ( inst_rs1_D == rf_waddr_X ) && ( rf_waddr_X != 5'd0 )) bypass_sel_0 = 2'd1;
+      && ( inst_rs1_D == rf_waddr_X ) && ( rf_waddr_X != 5'd0 ) && (dmem_type_X !== ld)) bypass_sel_0 = 2'd1;
     else if(val_D && rs1_en_D && val_M && rf_wen_M
       && ( inst_rs1_D == rf_waddr_M ) && ( rf_waddr_M != 5'd0 )) bypass_sel_0 = 2'd2;
     else if(val_D && rs1_en_D && val_W && rf_wen_W
@@ -489,7 +489,7 @@ end
 
 always_comb begin
     if(val_D && rs2_en_D && val_X && rf_wen_X
-      && ( inst_rs2_D == rf_waddr_X ) && ( rf_waddr_X != 5'd0 )) bypass_sel_1 = 2'd1;
+      && ( inst_rs2_D == rf_waddr_X ) && ( rf_waddr_X != 5'd0 ) && (dmem_type_X !== ld)) bypass_sel_1 = 2'd1;
     else if(val_D && rs2_en_D && val_M && rf_wen_M
       && ( inst_rs2_D == rf_waddr_M ) && ( rf_waddr_M != 5'd0 )) bypass_sel_1 = 2'd2;
     else if(val_D && rs2_en_D && val_W && rf_wen_W
