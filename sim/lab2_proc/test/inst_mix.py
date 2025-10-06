@@ -240,36 +240,34 @@ def gen_branch_7():
         csrr x3, mngr2proc < 1
         csrr x1, mngr2proc < 3
 
-        blt x3, x1, hello
-        mul x5, x3, x1
+      # Taken: skip the first addi/mul
+      blt   x3, x1, hello
+      addi  x3, x3, 1          # skipped
+      mul   x5, x3, x1         # skipped
 
-    helo:
-        blt x3, x1, label_a
-        mul x6, x3, x1
-
+    helo:                     # (unused; safe to delete)
+      blt  x3, x1, label_a   # not reached
+    
     helloworld:
-        blt x3, x1, hworld
-        mul x7, x3, x1
-        
-    hello: 
-        blt x3, x1, helloworld
-        mul x8, x3, x1
-
+      blt   x3, x1, hworld
+      mul   x7, x3, x1
+    
+    hello:
+      blt   x3, x1, helloworld
+      mul   x8, x3, x1
+    
     hworld:
-        lui x10, 0x00020
-        sw  x3, 0(x10)
-        mul x12, x3, x1
-        lw  x11, 0(x10)
-
-        lui   x10, 0x00000
-        addi  x10, x10, 0x020C  
-        jalr  x9, x10, 0
-        lw   x3, 0(x1)
-
-
-        mul x9, x3, x1
-
+      lui   x10, 0x00020
+      sw    x3, 0(x10)
+      mul   x12, x3, x1
+      lw    x11, 0(x10)
+    
+      # Jump to label_a **via label**, not raw address
+      jal   x0, label_a
+    
+      # Any code here is dead (we just jumped)
+    
     label_a:
-        addi x3, x3, 0b10
-        csrw proc2mngr, x3 > 0x03
+      addi  x3, x3, 0b10     # 1 + 2 -> 3
+      csrw  proc2mngr, x3 > 0x03
     """
