@@ -72,6 +72,7 @@ class Tests:
     asm_test( inst_mix.gen_branch_4    ),
     asm_test( inst_mix.gen_branch_5    ),
     asm_test( inst_mix.gen_branch_6    ),
+    asm_test( inst_mix.gen_branch_7    ),
   ])
 
   def test_mix( s, name, test ):

@@ -233,3 +233,43 @@ def gen_branch_6():
         addi x3, x3, 0b10
         csrw proc2mngr, x3 > 0x03
     """
+
+def gen_branch_7():
+    return """
+
+        csrr x3, mngr2proc < 1
+        csrr x1, mngr2proc < 3
+
+        blt x3, x1, hello
+        mul x5, x3, x1
+
+    helo:
+        blt x3, x1, label_a
+        mul x6, x3, x1
+
+    helloworld:
+        blt x3, x1, hworld
+        mul x7, x3, x1
+        
+    hello: 
+        blt x3, x1, helloworld
+        mul x8, x3, x1
+
+    hworld:
+        lui x10, 0x00020
+        sw  x3, 0(x10)
+        mul x12, x3, x1
+        lw  x11, 0(x10)
+
+        lui   x10, 0x00000
+        addi  x10, x10, 0x020C  
+        jalr  x9, x10, 0
+        lw   x3, 0(x1)
+
+
+        mul x9, x3, x1
+
+    label_a:
+        addi x3, x3, 0b10
+        csrw proc2mngr, x3 > 0x03
+    """

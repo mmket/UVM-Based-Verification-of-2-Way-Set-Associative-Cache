@@ -548,8 +548,8 @@ module lab2_proc_ProcBaseCtrl
   assign osquash_jalr_X = val_X && (br_type_X == br_jalr);
 
   logic osquash_br_X;
-  assign osquash_br_X = val_X && ((br_type_X == br_bne) && !br_cond_eq_X);  // branches
-  
+  assign osquash_br_X = val_X && (((br_type_X == br_bne) && !br_cond_eq_X) || ((br_type_X == br_beq) && br_cond_eq_X)
+                            || ((br_type_X == br_blt) && br_cond_blt) || ((br_type_X == br_bltu) && br_cond_bltu));  // branches
 
   assign osquash_X = val_X && !stall_X && (pc_redirect_X || osquash_jalr_X || osquash_br_X);
 
