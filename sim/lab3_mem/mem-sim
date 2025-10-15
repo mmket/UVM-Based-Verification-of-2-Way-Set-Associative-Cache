@@ -86,11 +86,7 @@ def parse_cmdline():
   p.add_argument( "-h", "--help",     action="store_true"                         )
   p.add_argument(       "--impl",     choices=["fl","base", "alt"], default="fl"  )
 
-  #'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-  # LAB TASK: Add choices to --input option to use your new patterns
-  #'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
-  p.add_argument(       "--input",    choices=["loop1", "loop2", "loop3"], default="loop1" )
+  p.add_argument(       "--input",    choices=["loop1", "loop2", "loop3", "loop4"], default="loop1" )
   p.add_argument(       "--trace",    action="store_true"                                          )
   p.add_argument(       "--stats",    action="store_true"                                          )
   p.add_argument(       "--dump-vcd", action="store_true"                                          )
@@ -193,9 +189,28 @@ def loop3():
 
   return [ imsgs, omsgs, mem ]
 
-#'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-# LAB TASK: Add more memory access patterns to evaluate your cache
-#'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
+def loop4():
+  # Access pattern:
+  #   a[i] at 0x0000
+  #   b[i] at 0x1000
+  # They share the same index bits in a 1 KB direct-mapped cache
+
+  mem = []
+  mem.append(0x00000000); mem.append(0xaaaa0000)
+  mem.append(0x00001000); mem.append(0xbbbb0000)
+
+  imsgs, omsgs = [], []
+  for i in range(50):
+    # alternate reads between a[i] and b[i]
+    imsgs.append(req('rd', i*2,   0x00000000, 0, 0))
+    omsgs.append(resp('rd', i*2,   0, 0, 0xaaaa0000))
+    imsgs.append(req('rd', i*2+1, 0x00001000, 0, 0))
+    omsgs.append(resp('rd', i*2+1, 0, 0, 0xbbbb0000))
+
+  return [imsgs, omsgs, mem]
+
+
 
 #-------------------------------------------------------------------------
 # Main
@@ -218,7 +233,7 @@ def main():
     'loop1' : loop1,
     'loop2' : loop2,
     'loop3' : loop3,
-
+    'loop4' : loop4,
     #'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
     # LAB TASK: Add your new patterns to this Python dict
     #'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
