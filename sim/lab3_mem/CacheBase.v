@@ -51,9 +51,30 @@ module lab3_mem_CacheBase
   output logic          cache2mem_respstream_rdy
 );
 
-  // '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-  // LAB TASK: Define wires
-  // '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+  //----------------------------------------------------------------------
+  // Wires
+  //----------------------------------------------------------------------
+
+  // control signals (ctrl->dpath)
+
+  logic        cachereq_reg_en;
+  logic        tag_array_wen;
+  logic        tag_array_ren;
+  logic        data_array_wen;
+  logic        data_array_ren;
+
+  // status signals (dpath->ctrl)
+
+  logic [ 2:0] cachereq_type;
+  logic [31:0] cachereq_addr;
+
+  logic [23:0] tag_array_read_out;
+
+  logic        hit_TC;
+
+  logic [2:0] memreq_type;
+  logic write_data_from_mem;
+  logic write_addr_evict;
 
   //----------------------------------------------------------------------
   // Control
@@ -160,19 +181,19 @@ module lab3_mem_CacheBase
 
     // Display all valid tags, show dirty bits with ; symbol
 
-    vc_trace.append_str( trace_str, "[" );
-    for ( i = 0; i < 16; i = i + 1 ) begin
-      if ( !ctrl.valid_bits.rfile[i] )
-        vc_trace.append_str( trace_str, "   " );
-      else begin
-        $sformat( str, "%x", dpath.tag_array.mem[i][7:0] );
-        vc_trace.append_str( trace_str, str );
-        if ( !ctrl.dirty_bits.rfile[i] )
-          vc_trace.append_str( trace_str, " " );
-        else
-          vc_trace.append_str( trace_str, "," );
-      end
-    end
+    // vc_trace.append_str( trace_str, "[" );
+    // for ( i = 0; i < 16; i = i + 1 ) begin
+    //   if ( !ctrl.valid_bits.rfile[i] )
+    //     vc_trace.append_str( trace_str, "   " );
+    //   else begin
+    //     $sformat( str, "%x", dpath.tag_array.mem[i][7:0] );
+    //     vc_trace.append_str( trace_str, str );
+    //     if ( !ctrl.dirty_bits.rfile[i] )
+    //       vc_trace.append_str( trace_str, " " );
+    //     else
+    //       vc_trace.append_str( trace_str, "," );
+    //   end
+    // end
     vc_trace.append_str( trace_str, "]" );
 
     vc_trace.append_str( trace_str, ")" );

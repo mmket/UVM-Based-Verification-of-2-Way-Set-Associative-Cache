@@ -40,9 +40,33 @@ module lab3_mem_CacheAlt
   output logic          cache2mem_respstream_rdy
 );
 
-  // '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-  // LAB TASK: Define wires
-  // '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+  //----------------------------------------------------------------------
+  // Wires
+  //----------------------------------------------------------------------
+
+  // control signals (ctrl->dpath)
+
+  logic        cachereq_reg_en;
+  logic        tag_array_wen;
+  logic        tag_array_ren;
+  logic        data_array_wen;
+  logic        data_array_ren;
+
+  logic way_sel;
+
+  // status signals (dpath->ctrl)
+
+  logic [ 2:0] cachereq_type;
+  logic [31:0] cachereq_addr;
+
+  logic [24:0] tag_array_read_out_0, tag_array_read_out_1;
+
+  logic        hit_TC;
+
+  logic [2:0] memreq_type;
+  logic write_data_from_mem;
+  logic write_addr_evict;
+
 
   //----------------------------------------------------------------------
   // Control
