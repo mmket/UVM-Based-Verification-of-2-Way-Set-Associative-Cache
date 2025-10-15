@@ -9,7 +9,7 @@ import os
 from subprocess import check_call, CalledProcessError
 
 impls  = [ "fl", "base", "alt" ]
-inputs = [ "loop1", "loop2", "loop3", "loop4" ]
+inputs = [ "loop1", "loop2", "loop3", "loop4", "loop5" ]
 
 test_cases = []
 for input_ in inputs:

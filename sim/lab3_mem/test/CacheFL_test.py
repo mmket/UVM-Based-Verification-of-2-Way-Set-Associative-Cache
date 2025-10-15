@@ -637,10 +637,6 @@ def evict_multi_cacheline():
     req( 'rd', 0xf, 0x10f0, 0, 0          ), resp( 'rd', 0xf, 0,   0,  0x1f1f1f1f ),
   ]
 
-
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-# LAB TASK: Add more directed test cases
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 #-------------------------------------------------------------------------
 # Test Case: read_hit_clean_line
 #-------------------------------------------------------------------------
@@ -1444,9 +1440,6 @@ def test_generic( test_params, cmdline_opts ):
 # Test Case with Random Addresses and Data
 #-------------------------------------------------------------------------
 
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-# LAB TASK: Add random test cases
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 #=========================================================================
 # Simple Address Pattern – Single Request Type (Write) with Random Data
 #=========================================================================
@@ -1486,7 +1479,7 @@ def simple_addr_random_type_random_data_a():
   # Initialize all locations with 0
   for i in range(num_reqs):
     addr = base_addr + i * stride
-    ref_mem[addr] = 0
+    ref_mem[addr] = 0xabcd1000 + i*4
 
   # Phase A: randomly choose rd/wr requests on simple sequential addresses
   for i in range(num_reqs * 2):
@@ -1498,7 +1491,7 @@ def simple_addr_random_type_random_data_a():
       tv += [ req('wr', i, addr, 0, data), resp('wr', i, 0, 0, 0) ]
     else:
       expected = ref_mem[addr]
-      tv += [ req('rd', i, addr, 0, 0), resp('rd', i, 1, 0, expected) ]
+      tv += [ req('rd', i, addr, 0, 0), resp('rd', i, 0, 0, expected) ]
 
   return tv
 
@@ -1732,9 +1725,9 @@ test_case_table_random = mk_test_case_table([
   [ "simple_addr_single_type_random_data_src_delay",simple_addr_single_type_random_data,  data_512B,     0.9, 3, 10, 0 ],
   [ "simple_addr_single_type_random_data_sink_delay",simple_addr_single_type_random_data,  data_512B,     0.9, 3, 0, 10 ],
 
- # [ "simple_addr_random_type_random_data_a",simple_addr_random_type_random_data_a,  data_512B,     0.9, 3, 0, 0 ],
- # [ "simple_addr_random_type_random_data_a_src_delay",simple_addr_random_type_random_data_a,  data_512B,     0.9, 3, 10, 0 ],
- # [ "simple_addr_random_type_random_data_a_sink_delay",simple_addr_random_type_random_data_a,  data_512B,     0.9, 3, 0, 10 ],
+  [ "simple_addr_random_type_random_data_a",simple_addr_random_type_random_data_a,  data_512B,     0.9, 3, 0, 0 ],
+  [ "simple_addr_random_type_random_data_a_src_delay",simple_addr_random_type_random_data_a,  data_512B,     0.9, 3, 10, 0 ],
+  [ "simple_addr_random_type_random_data_a_sink_delay",simple_addr_random_type_random_data_a,  data_512B,     0.9, 3, 0, 10 ],
 
   [ "random_addr_type_data_test",           random_addr_type_data_test,  data_512B,     0.9, 3, 0, 0 ],
   [ "random_addr_type_data_test_src_delay", random_addr_type_data_test,  data_512B,     0.9, 3, 10, 0 ],
@@ -1751,9 +1744,7 @@ test_case_table_random = mk_test_case_table([
   [ "mixed_spatial_temporal_locality_test",           mixed_spatial_temporal_locality_test,  data_512B,     0.9, 3, 0, 0 ],
   [ "mixed_spatial_temporal_locality_test_src_delay", mixed_spatial_temporal_locality_test,  data_512B,     0.9, 3, 10, 0 ],
   [ "mixed_spatial_temporal_locality_test_sink_delay",mixed_spatial_temporal_locality_test,  data_512B,     0.9, 3, 0, 10 ],
-  # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-  # LAB TASK: Add more entries to test case table
-  # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
 ])
 
 @pytest.mark.parametrize( **test_case_table_random )
@@ -1978,9 +1969,6 @@ def stress_entire_cache():
   ]
 
 
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-# LAB TASK: Add directed test cases explicitly for direct mapped cache
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 test_case_table_dmap = mk_test_case_table([
   (                                   "msg_func                         mem_data_func stall lat src sink"),
@@ -2008,9 +1996,7 @@ test_case_table_dmap = mk_test_case_table([
 [ "stress_entire_cache",stress_entire_cache,  data_512B,     0.9, 3, 0, 00 ],
   [ "stress_entire_cache_src_delay",stress_entire_cache,  data_512B,     0.9, 3, 0, 10 ],
   [ "stress_entire_cache_sink_delay",stress_entire_cache,  data_512B,     0.9, 3, 10, 0 ],
-  # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-  # LAB TASK: Add more entries to test case table
-  # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+
 ])
 
 @pytest.mark.parametrize( **test_case_table_dmap )
@@ -2021,9 +2007,6 @@ def test_dmap( test_params, cmdline_opts ):
 # Test Cases for Set Associative
 #-------------------------------------------------------------------------
 
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-# LAB TASK: Add directed test cases explicitly for set associative cache
-# ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 #----------------------------------------------------------------------
 # LRU replacement policy test (4-way set-associative cache)
 #----------------------------------------------------------------------
@@ -2199,9 +2182,6 @@ test_case_table_sassoc = mk_test_case_table([
   [ "stress_entire_cache_alt",stress_entire_cache_alt,  data_512B,     0.9, 3, 0, 00 ],
   [ "stress_entire_cache_alt_src_delay",stress_entire_cache_alt,  data_512B,     0.9, 3, 0, 10 ],
   [ "stress_entire_cache_alt_sink_delay",stress_entire_cache_alt,  data_512B,     0.9, 3, 10, 0 ],
-  # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-  # LAB TASK: Add more entries to test case table
-  # ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 ])
 
 @pytest.mark.parametrize( **test_case_table_sassoc )
@@ -2279,12 +2259,16 @@ def bank_test_data():
     0x00000200, 0xffffffff,
   ]
 
+
+
+
 test_case_table_bank = mk_test_case_table([
   (             "msg_func   mem_data_func   stall lat src sink"),
   [ "bank_test", bank_test, bank_test_data, 0.0,  0,  0,  0    ],
   [ "bank_test", bank_test, bank_test_data, 0.0,  0,  10,  0    ],
   [ "bank_test", bank_test, bank_test_data, 0.0,  0,  0,  10    ],
 ])
+
 
 @pytest.mark.parametrize( **test_case_table_bank )
 def test_bank( test_params, cmdline_opts ):

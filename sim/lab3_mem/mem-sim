@@ -86,7 +86,7 @@ def parse_cmdline():
   p.add_argument( "-h", "--help",     action="store_true"                         )
   p.add_argument(       "--impl",     choices=["fl","base", "alt"], default="fl"  )
 
-  p.add_argument(       "--input",    choices=["loop1", "loop2", "loop3", "loop4"], default="loop1" )
+  p.add_argument(       "--input",    choices=["loop1", "loop2", "loop3", "loop4", "loop5"], default="loop1" )
   p.add_argument(       "--trace",    action="store_true"                                          )
   p.add_argument(       "--stats",    action="store_true"                                          )
   p.add_argument(       "--dump-vcd", action="store_true"                                          )
@@ -189,7 +189,6 @@ def loop3():
 
   return [ imsgs, omsgs, mem ]
 
-
 def loop4():
   # Access pattern:
   #   a[i] at 0x0000
@@ -210,6 +209,37 @@ def loop4():
 
   return [imsgs, omsgs, mem]
 
+#-------------------------------------------------------------------------
+# Pattern: loop5 - write/read conflict miss test
+#-------------------------------------------------------------------------
+#-------------------------------------------------------------------------
+# Pattern: loop5 - write/read conflict miss test (loop4-style)
+#-------------------------------------------------------------------------
+def loop5():
+  # Memory contents
+  mem = []
+
+  mem.append(0x00000000); mem.append(0xaaaa0000)
+  mem.append(0x00000100); mem.append(0xbbbb0000)
+  mem.append(0x00000200); mem.append(0xcccc0000)
+
+  imsgs = []
+  omsgs = []
+
+  for i in range(30):
+    imsgs.append(req('wr', i*4+0, 0x00000000, 0, 0xdead0001))
+    omsgs.append(resp('wr', i*4+0, 0, 0, 0))
+
+    imsgs.append(req('wr', i*4+1, 0x00000100, 0, 0xdead0002))
+    omsgs.append(resp('wr', i*4+1, 0, 0, 0))
+
+    imsgs.append(req('wr', i*4+2, 0x00000200, 0, 0xdead0003))
+    omsgs.append(resp('wr', i*4+2, 0, 0, 0))
+
+    imsgs.append(req('rd', i*4+3, 0x00000100, 0, 0))
+    omsgs.append(resp('rd', i*4+3, 1, 0, 0xdead0002))
+
+  return [imsgs, omsgs, mem]
 
 
 #-------------------------------------------------------------------------
@@ -234,10 +264,7 @@ def main():
     'loop2' : loop2,
     'loop3' : loop3,
     'loop4' : loop4,
-    #'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-    # LAB TASK: Add your new patterns to this Python dict
-    #'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
+    'loop5' : loop5,
   }
 
   [ imsgs, omsgs, mem ] = input_dict[ opts.input ]()
