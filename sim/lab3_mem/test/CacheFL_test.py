@@ -1538,7 +1538,7 @@ def random_addr_type_data_test():
 
 def unit_stride_random_data_test():
   tv = []
-  ref_mem = {}                      # ✅ Reference memory
+  ref_mem = {}                      # Reference memory
   base_addr = 0x1000
   stride    = 0x10                  # 16B per cache line (unit stride)
   num_elems = 32                    # number of sequential accesses
@@ -1593,7 +1593,7 @@ import random
 
 def stride_random_data_test():
   tv = []
-  ref_mem = {}                      # ✅ Reference memory
+  ref_mem = {}                      # Reference memory
   base_addr = 0x1000
   stride    = 0x40                  # fixed stride = 64B (4 cache lines apart)
   num_elems = 32                    # number of memory operations

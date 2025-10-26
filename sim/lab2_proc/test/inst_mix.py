@@ -241,7 +241,9 @@ def gen_branch_7():
         csrr x1, mngr2proc < 3
 
       # Taken: skip the first addi/mul
-      blt   x3, x1, hello
+      sw    x3, 0(x3)
+      lw    x4, 0(x3)
+      blt   x4, x1, hello
       addi  x3, x3, 1          # skipped
       mul   x5, x3, x1         # skipped
 
