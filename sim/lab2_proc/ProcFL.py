@@ -105,6 +105,9 @@ class ProcFL( Component ):
         elif inst_name == "slt":
           s.R[inst.rd] = s.R[inst.rs1].int() < s.R[inst.rs2].int()
           s.PC += 4
+        elif inst_name == "sltu":
+          s.R[inst.rd] = s.R[inst.rs1] < s.R[inst.rs2]
+          s.PC += 4
         elif inst_name == "xor":
           s.R[inst.rd] = s.R[inst.rs1] ^ s.R[inst.rs2]
           s.PC += 4
@@ -130,11 +133,23 @@ class ProcFL( Component ):
         elif inst_name == "slti":
           s.R[inst.rd] = s.R[inst.rs1].int() < inst.i_imm.int()
           s.PC += 4
+        elif inst_name == "sltiu":
+          s.R[inst.rd] = s.R[inst.rs1] < sext( inst.i_imm, 32 )
+          s.PC += 4
+        elif inst_name == "xori":
+          s.R[inst.rd] = s.R[inst.rs1] ^ sext( inst.i_imm, 32 )
+          s.PC += 4
         elif inst_name == "ori":
           s.R[inst.rd] = s.R[inst.rs1] | sext( inst.i_imm, 32 )
           s.PC += 4
+        elif inst_name == "andi":
+          s.R[inst.rd] = s.R[inst.rs1] & sext( inst.i_imm, 32 )
+          s.PC += 4
         elif inst_name == "slli":
           s.R[inst.rd] = s.R[inst.rs1] << inst.shamt.uint()
+          s.PC += 4
+        elif inst_name == "srli":
+          s.R[inst.rd] = s.R[inst.rs1] >> inst.shamt.uint()
           s.PC += 4
         elif inst_name == "srai":
           s.R[inst.rd] = Bits32( s.R[inst.rs1].int() >> inst.shamt.uint() )
@@ -171,8 +186,18 @@ class ProcFL( Component ):
             s.PC = s.PC + sext( inst.b_imm, 32 )
           else:
             s.PC += 4
+        elif inst_name == "bge":
+          if s.R[inst.rs1].int() >= s.R[inst.rs2].int():
+            s.PC = s.PC + sext( inst.b_imm, 32 )
+          else:
+            s.PC += 4
         elif inst_name == "bltu":
           if s.R[inst.rs1] < s.R[inst.rs2]:
+            s.PC = s.PC + sext( inst.b_imm, 32 )
+          else:
+            s.PC += 4
+        elif inst_name == "bgeu":
+          if s.R[inst.rs1] >= s.R[inst.rs2]:
             s.PC = s.PC + sext( inst.b_imm, 32 )
           else:
             s.PC += 4

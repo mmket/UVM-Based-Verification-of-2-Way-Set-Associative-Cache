@@ -72,6 +72,7 @@ tinyrv2_encoding_table = \
   [ "sll    rd, rs1, rs2",     0b11111110000000000111000001111111, 0b00000000000000000001000000110011 ], # R-type, tinyrv{2}
   [ "slli   rd, rs1, shamt",   0b11111110000000000111000001111111, 0b00000000000000000001000000010011 ], # R-type, tinyrv{2}
   [ "srl    rd, rs1, rs2",     0b11111110000000000111000001111111, 0b00000000000000000101000000110011 ], # R-type, tinyrv{2}
+  [ "srli   rd, rs1, shamt",   0b11111110000000000111000001111111, 0b00000000000000000101000000010011 ], # R-type, tinyrv{2}
   [ "sra    rd, rs1, rs2",     0b11111110000000000111000001111111, 0b01000000000000000101000000110011 ], # R-type, tinyrv{2}
   [ "srai   rd, rs1, shamt",   0b11111110000000000111000001111111, 0b01000000000000000101000000010011 ], # R-type, tinyrv{2}
 
@@ -84,19 +85,25 @@ tinyrv2_encoding_table = \
 
   # Logical
   [ "xor    rd, rs1, rs2",     0b11111110000000000111000001111111, 0b00000000000000000100000000110011 ], # R-type, tinyrv{2}
+  [ "xori   rd, rs1, i_imm",   0b00000000000000000111000001111111, 0b00000000000000000100000000010011 ], # I-type, tinyrv{2}
   [ "or     rd, rs1, rs2",     0b11111110000000000111000001111111, 0b00000000000000000110000000110011 ], # R-type, tinyrv{2}
   [ "ori    rd, rs1, i_imm",   0b00000000000000000111000001111111, 0b00000000000000000110000000010011 ], # I-type, tinyrv{2}
   [ "and    rd, rs1, rs2",     0b11111110000000000111000001111111, 0b00000000000000000111000000110011 ], # R-type, tinyrv{2}
+  [ "andi   rd, rs1, i_imm",   0b00000000000000000111000001111111, 0b00000000000000000111000000010011 ], # I-type, tinyrv{2}
 
   # Compare
   [ "slt    rd, rs1, rs2",     0b11111110000000000111000001111111, 0b00000000000000000010000000110011 ], # R-type, tinyrv{2}
   [ "slti   rd, rs1, i_imm",   0b00000000000000000111000001111111, 0b00000000000000000010000000010011 ], # I-type, tinyrv{2}
+  [ "sltu   rd, rs1, rs2",     0b11111110000000000111000001111111, 0b00000000000000000011000000110011 ], # R-type, tinyrv{2}
+  [ "sltiu  rd, rs1, i_imm",   0b00000000000000000111000001111111, 0b00000000000000000011000000010011 ], # I-type, tinyrv{2}
 
   # Branches
   [ "beq    rs1, rs2, b_imm",  0b00000000000000000111000001111111, 0b00000000000000000000000001100011 ], # SB-type, tinyrv{2}
   [ "bne    rs1, rs2, b_imm",  0b00000000000000000111000001111111, 0b00000000000000000001000001100011 ], # SB-type, tinyrv{1,2}
   [ "blt    rs1, rs2, b_imm",  0b00000000000000000111000001111111, 0b00000000000000000100000001100011 ], # SB-type, tinyrv{2}
+  [ "bge    rs1, rs2, b_imm",  0b00000000000000000111000001111111, 0b00000000000000000101000001100011 ], # SB-type, tinyrv{2}
   [ "bltu   rs1, rs2, b_imm",  0b00000000000000000111000001111111, 0b00000000000000000110000001100011 ], # SB-type, tinyrv{2}
+  [ "bgeu   rs1, rs2, b_imm",  0b00000000000000000111000001111111, 0b00000000000000000111000001100011 ], # SB-type, tinyrv{2}
 
   # Jump & Link
   [ "jal    rd, j_imm",        0b00000000000000000000000001111111, 0b00000000000000000000000001101111 ], # UJ-type, tinyrv{1,2}
@@ -921,6 +928,7 @@ def decode_inst_name( inst ):
       if   inst[funct3] == 0b000:     inst_name = "add"
       elif inst[funct3] == 0b001:     inst_name = "sll"
       elif inst[funct3] == 0b010:     inst_name = "slt"
+      elif inst[funct3] == 0b011:     inst_name = "sltu"
       elif inst[funct3] == 0b100:     inst_name = "xor"
       elif inst[funct3] == 0b101:     inst_name = "srl"
       elif inst[funct3] == 0b110:     inst_name = "or"
@@ -934,10 +942,14 @@ def decode_inst_name( inst ):
   elif inst[opcode] == 0b0010011:
     if   inst[funct3] == 0b000:       inst_name = "addi"
     elif inst[funct3] == 0b010:       inst_name = "slti"
+    elif inst[funct3] == 0b011:       inst_name = "sltiu"
+    elif inst[funct3] == 0b100:       inst_name = "xori"
     elif inst[funct3] == 0b110:       inst_name = "ori"
+    elif inst[funct3] == 0b111:       inst_name = "andi"
     elif inst[funct3] == 0b001:       inst_name = "slli"
     elif inst[funct3] == 0b101:
-      if inst[funct7] == 0b0100000: inst_name = "srai"
+      if   inst[funct7] == 0b0000000: inst_name = "srli"
+      elif inst[funct7] == 0b0100000: inst_name = "srai"
 
   elif inst[opcode] == 0b0000011:
     if   inst[funct3] == 0b010:       inst_name = "lw"
@@ -955,7 +967,9 @@ def decode_inst_name( inst ):
     if   inst[funct3] == 0b000:       inst_name = "beq"
     elif inst[funct3] == 0b001:       inst_name = "bne"
     elif inst[funct3] == 0b100:       inst_name = "blt"
+    elif inst[funct3] == 0b101:       inst_name = "bge"
     elif inst[funct3] == 0b110:       inst_name = "bltu"
+    elif inst[funct3] == 0b111:       inst_name = "bgeu"
 
   elif inst[opcode] == 0b0110111:     inst_name = "lui"
 

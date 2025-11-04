@@ -13,7 +13,10 @@ jobs:
     strategy:
       matrix:
         test_cmd:
+          - ../lab1_imul
+          - ../lab2_proc
           - ../lab3_mem
+          - ../lab4_sys
 
     steps:
       - uses: actions/checkout@v4
@@ -44,7 +47,18 @@ jobs:
           pip install git+https://github.com/cornell-brg/pymtl3@pymtl4.0-dev
 
       - name: Run sim tests
-        timeout-minutes: 5
+        timeout-minutes: 12
         run: |
           mkdir -p sim/build && cd sim/build
           pytest ${{ matrix.test_cmd }}
+
+  app:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run app tests
+        timeout-minutes: 5
+        run: |
+          mkdir -p app/build && cd app/build
+          ../configure
+          make check

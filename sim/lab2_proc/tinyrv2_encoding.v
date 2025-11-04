@@ -73,13 +73,17 @@
 `define TINYRV2_INST_OR    32'b0000000_?????_?????_110_?????_0110011
 `define TINYRV2_INST_XOR   32'b0000000_?????_?????_100_?????_0110011
 `define TINYRV2_INST_SLT   32'b0000000_?????_?????_010_?????_0110011
+`define TINYRV2_INST_SLTU  32'b0000000_?????_?????_011_?????_0110011
 `define TINYRV2_INST_MUL   32'b0000001_?????_?????_000_?????_0110011
 
 // Register-immediate arithmetic, logical, and comparison instructions
 
 `define TINYRV2_INST_ADDI  32'b???????_?????_?????_000_?????_0010011
+`define TINYRV2_INST_ANDI  32'b???????_?????_?????_111_?????_0010011
 `define TINYRV2_INST_ORI   32'b???????_?????_?????_110_?????_0010011
+`define TINYRV2_INST_XORI  32'b???????_?????_?????_100_?????_0010011
 `define TINYRV2_INST_SLTI  32'b???????_?????_?????_010_?????_0010011
+`define TINYRV2_INST_SLTIU 32'b???????_?????_?????_011_?????_0010011
 
 // Shift instructions
 
@@ -87,6 +91,7 @@
 `define TINYRV2_INST_SRL   32'b0000000_?????_?????_101_?????_0110011
 `define TINYRV2_INST_SLL   32'b0000000_?????_?????_001_?????_0110011
 `define TINYRV2_INST_SRAI  32'b0100000_?????_?????_101_?????_0010011
+`define TINYRV2_INST_SRLI  32'b0000000_?????_?????_101_?????_0010011
 `define TINYRV2_INST_SLLI  32'b0000000_?????_?????_001_?????_0010011
 
 // Other instructions
@@ -109,7 +114,9 @@
 `define TINYRV2_INST_BEQ   32'b???????_?????_?????_000_?????_1100011
 `define TINYRV2_INST_BNE   32'b???????_?????_?????_001_?????_1100011
 `define TINYRV2_INST_BLT   32'b???????_?????_?????_100_?????_1100011
+`define TINYRV2_INST_BGE   32'b???????_?????_?????_101_?????_1100011
 `define TINYRV2_INST_BLTU  32'b???????_?????_?????_110_?????_1100011
+`define TINYRV2_INST_BGEU  32'b???????_?????_?????_111_?????_1100011
 
 // Accelerator custom0
 
@@ -251,16 +258,21 @@ module lab2_proc_tinyrv2_encoding_InstTasks();
       `TINYRV2_INST_OR    : $sformat( disasm, "or     %s, %s, %s   ",   rd_str,  rs1_str, rs2_str );
       `TINYRV2_INST_XOR   : $sformat( disasm, "xor    %s, %s, %s   ",   rd_str,  rs1_str, rs2_str );
       `TINYRV2_INST_SLT   : $sformat( disasm, "slt    %s, %s, %s   ",   rd_str,  rs1_str, rs2_str );
+      `TINYRV2_INST_SLTU  : $sformat( disasm, "sltu   %s, %s, %s   ",   rd_str,  rs1_str, rs2_str );
       `TINYRV2_INST_MUL   : $sformat( disasm, "mul    %s, %s, %s   ",   rd_str,  rs1_str, rs2_str );
 
       `TINYRV2_INST_ADDI  : $sformat( disasm, "addi   %s, %s, 0x%x ",   rd_str,  rs1_str, imm_i(inst) );
+      `TINYRV2_INST_ANDI  : $sformat( disasm, "andi   %s, %s, 0x%x ",   rd_str,  rs1_str, imm_i(inst) );
       `TINYRV2_INST_ORI   : $sformat( disasm, "ori    %s, %s, 0x%x ",   rd_str,  rs1_str, imm_i(inst) );
+      `TINYRV2_INST_XORI  : $sformat( disasm, "xori   %s, %s, 0x%x ",   rd_str,  rs1_str, imm_i(inst) );
       `TINYRV2_INST_SLTI  : $sformat( disasm, "slti   %s, %s, 0x%x ",   rd_str,  rs1_str, imm_i(inst) );
+      `TINYRV2_INST_SLTIU : $sformat( disasm, "sltiu  %s, %s, 0x%x ",   rd_str,  rs1_str, imm_i(inst) );
 
       `TINYRV2_INST_SRA   : $sformat( disasm, "sra    %s, %s, 0x%x  ",  rd_str,  rs1_str, imm_shamt(inst) );
       `TINYRV2_INST_SRL   : $sformat( disasm, "srl    %s, %s, 0x%x  ",  rd_str,  rs1_str, imm_shamt(inst) );
       `TINYRV2_INST_SLL   : $sformat( disasm, "sll    %s, %s, 0x%x  ",  rd_str,  rs1_str, imm_shamt(inst) );
       `TINYRV2_INST_SRAI  : $sformat( disasm, "srai   %s, %s, 0x%x  ",  rd_str,  rs1_str, imm_shamt(inst) );
+      `TINYRV2_INST_SRLI  : $sformat( disasm, "srli   %s, %s, 0x%x  ",  rd_str,  rs1_str, imm_shamt(inst) );
       `TINYRV2_INST_SLLI  : $sformat( disasm, "slli   %s, %s, 0x%x  ",  rd_str,  rs1_str, imm_shamt(inst) );
 
       `TINYRV2_INST_LUI   : $sformat( disasm, "lui    %s, 0x%x    ",    rd_str,  imm_u_sh12(inst));
@@ -275,7 +287,9 @@ module lab2_proc_tinyrv2_encoding_InstTasks();
       `TINYRV2_INST_BEQ   : $sformat( disasm, "beq    %s, %s, 0x%x",    rs1_str, rs2_str, imm_b(inst) );
       `TINYRV2_INST_BNE   : $sformat( disasm, "bne    %s, %s, 0x%x",    rs1_str, rs2_str, imm_b(inst) );
       `TINYRV2_INST_BLT   : $sformat( disasm, "blt    %s, %s, 0x%x",    rs1_str, rs2_str, imm_b(inst) );
+      `TINYRV2_INST_BGE   : $sformat( disasm, "bge    %s, %s, 0x%x",    rs1_str, rs2_str, imm_b(inst) );
       `TINYRV2_INST_BLTU  : $sformat( disasm, "bltu   %s, %s, 0x%x",    rs1_str, rs2_str, imm_b(inst) );
+      `TINYRV2_INST_BGEU  : $sformat( disasm, "bgeu   %s, %s, 0x%x",    rs1_str, rs2_str, imm_b(inst) );
 
       `TINYRV2_INST_CUST0 : $sformat( disasm, "cust0 %s, %s, %s, %s", rd_str, rs1_str, rs2_str, funct_str );
       default             : $sformat( disasm, "illegal inst           " );
@@ -302,16 +316,21 @@ module lab2_proc_tinyrv2_encoding_InstTasks();
       `TINYRV2_INST_OR    : disasm_tiny = "or  ";
       `TINYRV2_INST_XOR   : disasm_tiny = "xor ";
       `TINYRV2_INST_SLT   : disasm_tiny = "slt ";
+      `TINYRV2_INST_SLTU  : disasm_tiny = "sltu";
       `TINYRV2_INST_MUL   : disasm_tiny = "mul ";
 
       `TINYRV2_INST_ADDI  : disasm_tiny = "addi";
+      `TINYRV2_INST_ANDI  : disasm_tiny = "andi";
       `TINYRV2_INST_ORI   : disasm_tiny = "ori ";
+      `TINYRV2_INST_XORI  : disasm_tiny = "xori";
       `TINYRV2_INST_SLTI  : disasm_tiny = "slti";
+      `TINYRV2_INST_SLTIU : disasm_tiny = "sltI";
 
       `TINYRV2_INST_SRA   : disasm_tiny = "sra ";
       `TINYRV2_INST_SRL   : disasm_tiny = "srl ";
       `TINYRV2_INST_SLL   : disasm_tiny = "sll ";
       `TINYRV2_INST_SRAI  : disasm_tiny = "srai";
+      `TINYRV2_INST_SRLI  : disasm_tiny = "srli";
       `TINYRV2_INST_SLLI  : disasm_tiny = "slli";
 
       `TINYRV2_INST_LUI   : disasm_tiny = "lui ";
@@ -326,7 +345,9 @@ module lab2_proc_tinyrv2_encoding_InstTasks();
       `TINYRV2_INST_BEQ   : disasm_tiny = "beq ";
       `TINYRV2_INST_BNE   : disasm_tiny = "bne ";
       `TINYRV2_INST_BLT   : disasm_tiny = "blt ";
+      `TINYRV2_INST_BGE   : disasm_tiny = "bge ";
       `TINYRV2_INST_BLTU  : disasm_tiny = "bltu";
+      `TINYRV2_INST_BGEU  : disasm_tiny = "bgeu";
 
       `TINYRV2_INST_CUST0 : disasm_tiny = "cus0";
 

@@ -141,6 +141,10 @@ class TinyRV2Semantics (object):
     s.R[inst.rd] = s.R[inst.rs1].int() < s.R[inst.rs2].int()
     s.PC += 4
 
+  def execute_sltu( s, inst ):
+    s.R[inst.rd] = s.R[inst.rs1] < s.R[inst.rs2]
+    s.PC += 4
+
   def execute_xor( s, inst ):
     s.R[inst.rd] = s.R[inst.rs1] ^ s.R[inst.rs2]
     s.PC += 4
@@ -173,13 +177,29 @@ class TinyRV2Semantics (object):
     s.R[inst.rd] = s.R[inst.rs1].int() < inst.i_imm.int()
     s.PC += 4
 
+  def execute_sltiu( s, inst ):
+    s.R[inst.rd] = s.R[inst.rs1] < sext(inst.i_imm)
+    s.PC += 4
+
+  def execute_xori( s, inst ):
+    s.R[inst.rd] = s.R[inst.rs1] ^ sext(inst.i_imm)
+    s.PC += 4
+
   def execute_ori( s, inst ):
     s.R[inst.rd] = s.R[inst.rs1] | sext(inst.i_imm)
+    s.PC += 4
+
+  def execute_andi( s, inst ):
+    s.R[inst.rd] = s.R[inst.rs1] & sext(inst.i_imm)
     s.PC += 4
 
   def execute_slli( s, inst ):
     # does not have exception, just assert here
     s.R[inst.rd] = s.R[inst.rs1] << inst.shamt
+    s.PC += 4
+
+  def execute_srli( s, inst ):
+    s.R[inst.rd] = s.R[inst.rs1] >> inst.shamt
     s.PC += 4
 
   def execute_srai( s, inst ):
@@ -207,10 +227,40 @@ class TinyRV2Semantics (object):
     s.R[inst.rd] = s.M[addr:addr+4]
     s.PC += 4
 
+  # def execute_lb( s, inst ):
+  #   addr = s.R[inst.rs1] + sext(inst.i_imm)
+  #   s.R[inst.rd] = sext( s.M[addr] )
+  #   s.PC += 4
+  #
+  # def execute_lh( s, inst ):
+  #   addr = s.R[inst.rs1] + sext(inst.i_imm)
+  #   s.R[inst.rd] = sext( s.M[addr:addr+2] )
+  #   s.PC += 4
+  #
+  # def execute_lbu( s, inst ):
+  #   addr = s.R[inst.rs1] + sext(inst.i_imm)
+  #   s.R[inst.rd] = zext( s.M[addr] )
+  #   s.PC += 4
+  #
+  # def execute_lhu( s, inst ):
+  #   addr = s.R[inst.rs1] + sext(inst.i_imm)
+  #   s.R[inst.rd] = zext( s.M[addr:addr+2] )
+  #   s.PC += 4
+
   def execute_sw( s, inst ):
     addr = s.R[inst.rs1] + sext(inst.s_imm)
     s.M[addr:addr+4] = s.R[inst.rs2]
     s.PC += 4
+
+  # def execute_sb( s, inst ):
+  #   addr = s.R[inst.rs1] + sext(inst.s_imm)
+  #   s.M[addr] = s.R[inst.rs2][0:8]
+  #   s.PC += 4
+  #
+  # def execute_sh( s, inst ):
+  #   addr = s.R[inst.rs1] + sext(inst.s_imm)
+  #   s.M[addr:addr+2] = s.R[inst.rs2][0:16]
+  #   s.PC += 4
 
   #-----------------------------------------------------------------------
   # Unconditional jump instructions
@@ -247,8 +297,20 @@ class TinyRV2Semantics (object):
     else:
       s.PC += 4
 
+  def execute_bge( s, inst ):
+    if s.R[inst.rs1].int() >= s.R[inst.rs2].int():
+      s.PC = s.PC + sext(inst.b_imm)
+    else:
+      s.PC += 4
+
   def execute_bltu( s, inst ):
     if s.R[inst.rs1] < s.R[inst.rs2]:
+      s.PC = s.PC + sext(inst.b_imm)
+    else:
+      s.PC += 4
+
+  def execute_bgeu( s, inst ):
+    if s.R[inst.rs1] >= s.R[inst.rs2]:
       s.PC = s.PC + sext(inst.b_imm)
     else:
       s.PC += 4
@@ -354,30 +416,43 @@ class TinyRV2Semantics (object):
     'sub'   : execute_sub,
     'mul'   : execute_mul,
     'and'   : execute_and,
+    'andi'  : execute_andi,
     'or'    : execute_or,
     'ori'   : execute_ori,
     'xor'   : execute_xor,
+    'xori'  : execute_xori,
 
     'slt'   : execute_slt,
     'slti'  : execute_slti,
+    'sltu'  : execute_sltu,
+    'sltiu' : execute_sltiu,
 
     'sra'   : execute_sra,
     'srai'  : execute_srai,
     'srl'   : execute_srl,
+    'srli'  : execute_srli,
     'sll'   : execute_sll,
     'slli'  : execute_slli,
 
     'lui'   : execute_lui,
     'auipc' : execute_auipc,
     'lw'    : execute_lw,
+    # 'lb'    : execute_lb,
+    # 'lh'    : execute_lh,
+    # 'lbu'   : execute_lbu,
+    # 'lhu'   : execute_lhu,
     'sw'    : execute_sw,
+    # 'sb'    : execute_sb,
+    # 'sh'    : execute_sh,
 
     'jal'   : execute_jal,
     'jalr'  : execute_jalr,
     'beq'   : execute_beq,
     'bne'   : execute_bne,
     'blt'   : execute_blt,
+    'bge'   : execute_bge,
     'bltu'  : execute_bltu,
+    'bgeu'  : execute_bgeu,
 
     'csrr' : execute_csrr,
     'csrw' : execute_csrw,
