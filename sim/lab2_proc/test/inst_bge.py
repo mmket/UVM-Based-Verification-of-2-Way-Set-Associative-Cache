@@ -10,9 +10,6 @@ random.seed(0xdeadbeef)
 from pymtl3 import *
 from lab2_proc.test.inst_utils import *
 
-#-------------------------------------------------------------------------
-# gen_basic_test
-#-------------------------------------------------------------------------
 
 def gen_basic_test():
   return """
@@ -53,6 +50,269 @@ def gen_basic_test():
 
   """
 
-# ''' LAB TASK ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-# Define additional directed and random test cases.
-# '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+#-------------------------------------------------------------------------
+# gen_src0_dep_taken_test
+# src0 >= src1 → taken
+#-------------------------------------------------------------------------
+
+def gen_src0_dep_taken_test():
+  return [
+    gen_br2_src0_dep_test( 5, "bge", 7, 1, True ),
+    gen_br2_src0_dep_test( 4, "bge", 7, 2, True ),
+    gen_br2_src0_dep_test( 3, "bge", 5, 3, True ),
+    gen_br2_src0_dep_test( 2, "bge", 4, 4, True ),
+    gen_br2_src0_dep_test( 1, "bge", 8, 7, True ),
+    gen_br2_src0_dep_test( 0, "bge", 6, 6, True ),
+  ]
+
+
+#-------------------------------------------------------------------------
+# gen_src0_dep_nottaken_test
+# src0 < src1 → not taken
+#-------------------------------------------------------------------------
+
+def gen_src0_dep_nottaken_test():
+  return [
+    gen_br2_src0_dep_test( 5, "bge", 1, 7, False ),
+    gen_br2_src0_dep_test( 4, "bge", 2, 7, False ),
+    gen_br2_src0_dep_test( 3, "bge", 3, 7, False ),
+    gen_br2_src0_dep_test( 2, "bge", 4, 7, False ),
+    gen_br2_src0_dep_test( 1, "bge", 5, 7, False ),
+    gen_br2_src0_dep_test( 0, "bge", 6, 7, False ),
+  ]
+
+
+#-------------------------------------------------------------------------
+# gen_src1_dep_taken_test
+# src0 >= src1 → taken
+#-------------------------------------------------------------------------
+
+def gen_src1_dep_taken_test():
+  return [
+    gen_br2_src1_dep_test( 5, "bge", 7, 1, True ),
+    gen_br2_src1_dep_test( 4, "bge", 7, 2, True ),
+    gen_br2_src1_dep_test( 3, "bge", 4, 3, True ),
+    gen_br2_src1_dep_test( 2, "bge", 5, 4, True ),
+    gen_br2_src1_dep_test( 1, "bge", 6, 5, True ),
+    gen_br2_src1_dep_test( 0, "bge", 8, 6, True ),
+  ]
+
+
+#-------------------------------------------------------------------------
+# gen_src1_dep_nottaken_test
+# src0 < src1 → not taken
+#-------------------------------------------------------------------------
+
+def gen_src1_dep_nottaken_test():
+  return [
+    gen_br2_src1_dep_test( 5, "bge", 1, 7, False ),
+    gen_br2_src1_dep_test( 4, "bge", 2, 7, False ),
+    gen_br2_src1_dep_test( 3, "bge", 3, 7, False ),
+    gen_br2_src1_dep_test( 2, "bge", 4, 7, False ),
+    gen_br2_src1_dep_test( 1, "bge", 5, 7, False ),
+    gen_br2_src1_dep_test( 0, "bge", 6, 7, False ),
+  ]
+
+
+#-------------------------------------------------------------------------
+# gen_srcs_dep_taken_test
+# src0 >= src1 → taken
+#-------------------------------------------------------------------------
+
+def gen_srcs_dep_taken_test():
+  return [
+    gen_br2_srcs_dep_test( 5, "bge", 2, 1, True ),
+    gen_br2_srcs_dep_test( 4, "bge", 3, 2, True ),
+    gen_br2_srcs_dep_test( 3, "bge", 4, 3, True ),
+    gen_br2_srcs_dep_test( 2, "bge", 5, 4, True ),
+    gen_br2_srcs_dep_test( 1, "bge", 6, 5, True ),
+    gen_br2_srcs_dep_test( 0, "bge", 7, 6, True ),
+  ]
+
+
+#-------------------------------------------------------------------------
+# gen_srcs_dep_nottaken_test
+# src0 < src1 → not taken
+#-------------------------------------------------------------------------
+
+def gen_srcs_dep_nottaken_test():
+  return [
+    gen_br2_srcs_dep_test( 5, "bge", 1, 2, False ),
+    gen_br2_srcs_dep_test( 4, "bge", 2, 3, False ),
+    gen_br2_srcs_dep_test( 3, "bge", 3, 4, False ),
+    gen_br2_srcs_dep_test( 2, "bge", 4, 5, False ),
+    gen_br2_srcs_dep_test( 1, "bge", 5, 6, False ),
+    gen_br2_srcs_dep_test( 0, "bge", 6, 7, False ),
+  ]
+
+
+#-------------------------------------------------------------------------
+# Equal test: src0 == src1 → taken
+#-------------------------------------------------------------------------
+
+def gen_src0_eq_src1_test():
+  return [
+    gen_br2_src0_eq_src1_test( "bge", 5, True ),
+  ]
+
+
+#-------------------------------------------------------------------------
+# gen_value_test — signed tests
+#-------------------------------------------------------------------------
+
+def gen_value_test():
+  return [
+    gen_br2_value_test( "bge", -1, -1, True  ),
+    gen_br2_value_test( "bge", -1, -2, True  ),
+    gen_br2_value_test( "bge", -1,  0, False ),
+
+    gen_br2_value_test( "bge",  0, -1, True  ),
+    gen_br2_value_test( "bge",  0,  1, False ),
+
+    gen_br2_value_test( "bge",  1, -1, True  ),
+    gen_br2_value_test( "bge",  1,  0, True  ),
+
+    gen_br2_value_test( "bge", 2147483647, -9, True  ),
+    gen_br2_value_test( "bge", -9, 2147483647, False ),
+  ]
+
+
+#-------------------------------------------------------------------------
+# gen_random_test
+#-------------------------------------------------------------------------
+
+def gen_random_test():
+  asm_code = []
+  for i in range(25):
+    src0 = b32( random.randint(0,0xffffffff) )
+    src1 = b32( random.randint(0,0xffffffff) )
+
+    taken = (src0.int() >= src1.int())
+
+    asm_code.append( gen_br2_value_test( "bge", src0.uint(), src1.uint(), taken ) )
+
+  return asm_code
+
+
+def gen_back_to_back_test():
+  return """
+     # Test backwards walk (back to back branch taken)
+
+     csrr x3, mngr2proc < 1      # x3 = 1  (so bge x3,x0 is ALWAYS taken)
+     csrr x1, mngr2proc < 1
+
+     # First branch -- taken
+     bge  x3, x0, X0
+     csrw proc2mngr, x0    # should NOT run
+     nop
+a0:
+     csrw proc2mngr, x1 > 1
+     bge  x3, x0, y0
+b0:
+     bge  x3, x0, a0
+c0:
+     bge  x3, x0, b0
+d0:
+     bge  x3, x0, c0
+e0:
+     bge  x3, x0, d0
+f0:
+     bge  x3, x0, e0
+g0:
+     bge  x3, x0, f0
+h0:
+     bge  x3, x0, g0
+i0:
+     bge  x3, x0, h0
+X0:
+     bge  x3, x0, i0
+y0:
+
+     # Second block
+     bge  x3, x0, X1
+     csrw proc2mngr, x0
+     nop
+a1:
+     csrw proc2mngr, x1 > 1
+     bge  x3, x0, y1
+b1:
+     bge  x3, x0, a1
+c1:
+     bge  x3, x0, b1
+d1:
+     bge  x3, x0, c1
+e1:
+     bge  x3, x0, d1
+f1:
+     bge  x3, x0, e1
+g1:
+     bge  x3, x0, f1
+h1:
+     bge  x3, x0, g1
+i1:
+     bge  x3, x0, h1
+X1:
+     bge  x3, x0, i1
+y1:
+
+     # Third block
+     bge  x3, x0, X2
+     csrw proc2mngr, x0
+     nop
+a2:
+     csrw proc2mngr, x1 > 1
+     bge  x3, x0, y2
+b2:
+     bge  x3, x0, a2
+c2:
+     bge  x3, x0, b2
+d2:
+     bge  x3, x0, c2
+e2:
+     bge  x3, x0, d2
+f2:
+     bge  x3, x0, e2
+g2:
+     bge  x3, x0, f2
+h2:
+     bge  x3, x0, g2
+i2:
+     bge  x3, x0, h2
+X2:
+     bge  x3, x0, i2
+y2:
+
+     # Fourth block
+     bge  x3, x0, X3
+     csrw proc2mngr, x0
+     nop
+a3:
+     csrw proc2mngr, x1 > 1
+     bge  x3, x0, y3
+b3:
+     bge  x3, x0, a3
+c3:
+     bge  x3, x0, b3
+d3:
+     bge  x3, x0, c3
+e3:
+     bge  x3, x0, d3
+f3:
+     bge  x3, x0, e3
+g3:
+     bge  x3, x0, f3
+h3:
+     bge  x3, x0, g3
+i3:
+     bge  x3, x0, h3
+X3:
+     bge  x3, x0, i3
+y3:
+     nop
+     nop
+     nop
+     nop
+     nop
+     nop
+     nop
+  """

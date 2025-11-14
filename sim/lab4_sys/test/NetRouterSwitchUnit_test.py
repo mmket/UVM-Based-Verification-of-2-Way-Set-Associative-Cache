@@ -36,6 +36,8 @@ class TestHarness( Component ):
     s.srcs[0].ostream //= s.sunit.istream[0]
     s.srcs[1].ostream //= s.sunit.istream[1]
     s.srcs[2].ostream //= s.sunit.istream[2]
+
+
     s.sunit.ostream   //= s.sink.istream
 
   def done( s ):
@@ -62,9 +64,10 @@ def test_basic( cmdline_opts ):
 
   msgs = [
     #           src  dest opaq  payload
+    NetMsgType( 0,   0,   0x10, 0x10101010 ),
     NetMsgType( 1,   0,   0x11, 0x11111111 ),
     NetMsgType( 2,   0,   0x12, 0x12121212 ),
-    NetMsgType( 0,   0,   0x10, 0x10101010 ),
+    
   ]
 
   th.set_param("top.srcs[0].construct", msgs=[ m for m in msgs if m.src == 0 ] )
@@ -91,21 +94,24 @@ one = [
 
 three = [
   #           src  dest opaq  payload
+  NetMsgType( 0,   3,   0x10, 0x10101010 ),
   NetMsgType( 1,   2,   0x11, 0x11111111 ),
   NetMsgType( 2,   1,   0x12, 0x12121212 ),
-  NetMsgType( 0,   3,   0x10, 0x10101010 ),
 ]
 
 three_diff_dest = [
   #           src  dest opaq  payload
+  NetMsgType( 0,   3,   0x10, 0x10101010 ),
   NetMsgType( 1,   2,   0x11, 0x11111111 ),
   NetMsgType( 2,   1,   0x12, 0x12121212 ),
-  NetMsgType( 0,   3,   0x10, 0x10101010 ),
 ]
 
-#''' LAB TASK ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-# Change above tests if necessary; add more directed tests
-#'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+same_dest = [
+  NetMsgType( 0, 0, 0x10, 0x11111111 ),
+  NetMsgType( 1, 0, 0x11, 0x22222222 ),
+  NetMsgType( 2, 0, 0x12, 0x33333333 ),
+]
+
 
 #-------------------------------------------------------------------------
 # Test Case Table
@@ -116,8 +122,7 @@ test_case_table = mk_test_case_table([
   [ "one",                         one,                  0,  0,  'fixed'  ],
   [ "three",                       three,                0,  0,  'fixed'  ],
   [ "three_diff_dest",             three_diff_dest,      0,  0,  'fixed'  ],
-
-  #'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+  [ "same_dest",                   same_dest,            0,  0,  'fixed'  ],
 
 ])
 

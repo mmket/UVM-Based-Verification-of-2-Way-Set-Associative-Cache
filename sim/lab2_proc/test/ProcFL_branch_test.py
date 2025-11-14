@@ -16,6 +16,7 @@ from lab2_proc.test import inst_beq
 from lab2_proc.test import inst_bne
 from lab2_proc.test import inst_blt
 from lab2_proc.test import inst_bltu
+from lab2_proc.test import inst_bge
 
 #-------------------------------------------------------------------------
 # Tests
@@ -119,4 +120,28 @@ class Tests:
 
   def test_bltu_delays( s ):
     run_test( s.ProcType, inst_bltu.gen_random_test, delays=True,
+              cmdline_opts=s.__class__.cmdline_opts )
+    
+#-----------------------------------------------------------------------
+# bge
+#-----------------------------------------------------------------------
+
+  @pytest.mark.parametrize( "name,test", [
+    asm_test( inst_bge.gen_basic_test             ),
+    asm_test( inst_bge.gen_src0_dep_taken_test    ),
+    asm_test( inst_bge.gen_src0_dep_nottaken_test ),
+    asm_test( inst_bge.gen_src1_dep_taken_test    ),
+    asm_test( inst_bge.gen_src1_dep_nottaken_test ),
+    asm_test( inst_bge.gen_srcs_dep_taken_test    ),
+    asm_test( inst_bge.gen_srcs_dep_nottaken_test ),
+    asm_test( inst_bge.gen_src0_eq_src1_test      ),
+    asm_test( inst_bge.gen_value_test             ),
+    asm_test( inst_bge.gen_random_test            ),
+    asm_test( inst_bge.gen_back_to_back_test      ),
+  ])
+  def test_bge( s, name, test ):
+    run_test( s.ProcType, test, cmdline_opts=s.__class__.cmdline_opts )
+
+  def test_bge_delays( s ):
+    run_test( s.ProcType, inst_bge.gen_random_test, delays=True,
               cmdline_opts=s.__class__.cmdline_opts )

@@ -1,4 +1,6 @@
 import pytest
+import random
+
 from pymtl3 import *
 from lab2_proc.test.harness import asm_test, run_test
 from lab2_proc.ProcFL import ProcFL  
@@ -273,3 +275,57 @@ def gen_branch_7():
       addi  x3, x3, 0b10     # 1 + 2 -> 3
       csrw  proc2mngr, x3 > 0x03
     """
+def gen_mix_test():
+  return f"""
+
+    # -----------------------------------------------------------
+    # Mixed instruction test (TinyRV2 compatible)
+    # -----------------------------------------------------------
+
+    # x1 = 5
+    csrr   x1, mngr2proc < 5
+
+    # x2 = x1 + 3 = 8
+    addi   x2, x1, 3
+
+    # x3 = x2 + x2 = 16
+    add    x3, x2, x2
+
+    
+
+  end:
+    nop
+    nop
+    nop
+  """
+def gen_random1_test():
+  asm = []
+  for i in range(10):
+
+    
+    src = random.randint(0, 20)
+    expected = (src + 3) * 2  
+
+    asm.append(f"""
+      csrr   x1, mngr2proc < {src}
+
+      addi   x2, x1, 3        # x2 = x1 + 3
+      add    x3, x2, x2       # x3 = x2 + x2 = (x1+3)*2
+
+      csrw   proc2mngr, x3 > {expected}
+    """)
+
+  return asm
+
+def gen_random_test():
+  tests = []
+  for _ in range(10):
+    src = random.randint(0, 20)
+    expected = (src + 3) * 2
+    tests.append(f"""
+      csrr x1, mngr2proc < {src}
+      addi x2, x1, 3
+      add  x3, x2, x2
+      csrw proc2mngr, x3 > {expected}
+    """)
+  return tests

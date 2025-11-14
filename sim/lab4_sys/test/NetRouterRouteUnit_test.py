@@ -57,7 +57,7 @@ class TestHarness( Component ):
 # We will not test your route unit since its functionality depends on the
 # chosen routing algorithm.
 
-def test_basic( cmdline_opts ):
+def test_basic_a( cmdline_opts ):
 
   th = TestHarness( router_id=0 )
 
@@ -66,18 +66,80 @@ def test_basic( cmdline_opts ):
     NetMsgType( 0,   0,   0x10, 0x10101010 ),
     NetMsgType( 0,   1,   0x11, 0x11111111 ),
     NetMsgType( 0,   2,   0x12, 0x12121212 ),
-    NetMsgType( 0,   3,   0x13, 0x13131313 ),
   ]
 
   th.set_param("top.src.construct",   msgs=msgs  )
-  th.set_param("top.sinks[0].construct", msgs=[ m for m in msgs if m.dest == 0 ] )
-  th.set_param("top.sinks[1].construct", msgs=[ m for m in msgs if m.dest != 0 ] )
-  th.set_param("top.sinks[2].construct", msgs=[] )
+  th.set_param("top.sinks[0].construct", msgs=[ m for m in msgs if m.dest == 3 ] )
+  th.set_param("top.sinks[1].construct", msgs=[ m for m in msgs if m.dest == 0 ] )
+  th.set_param("top.sinks[2].construct", msgs=[ m for m in msgs if m.dest in [1, 2] ] )
+  
 
   th.elaborate()
 
   run_sim( th, cmdline_opts, duts=['runit'] )
 
+def test_basic_b( cmdline_opts ):
+
+  th = TestHarness( router_id=1 )
+
+  msgs = [
+    #           src  dest opaq  payload
+    NetMsgType( 0,   0,   0x10, 0x10101010 ),
+    NetMsgType( 0,   1,   0x11, 0x11111111 ),
+    NetMsgType( 0,   2,   0x12, 0x12121212 ),
+  ]
+
+  th.set_param("top.src.construct",   msgs=msgs  )
+  th.set_param("top.sinks[0].construct", msgs=[ m for m in msgs if m.dest == 0 ] )
+  th.set_param("top.sinks[1].construct", msgs=[ m for m in msgs if m.dest == 1 ] )
+  th.set_param("top.sinks[2].construct", msgs=[ m for m in msgs if m.dest in [2, 3] ] )
+  
+
+  th.elaborate()
+
+  run_sim( th, cmdline_opts, duts=['runit'] )
+
+def test_basic_c( cmdline_opts ):
+
+  th = TestHarness( router_id=2 )
+
+  msgs = [
+    #           src  dest opaq  payload
+    NetMsgType( 0,   0,   0x10, 0x10101010 ),
+    NetMsgType( 0,   1,   0x11, 0x11111111 ),
+    NetMsgType( 0,   2,   0x12, 0x12121212 ),
+  ]
+
+  th.set_param("top.src.construct",   msgs=msgs  )
+  th.set_param("top.sinks[0].construct", msgs=[ m for m in msgs if m.dest == 1 ] )
+  th.set_param("top.sinks[1].construct", msgs=[ m for m in msgs if m.dest == 2 ] )
+  th.set_param("top.sinks[2].construct", msgs=[ m for m in msgs if m.dest in [3, 0] ] )
+  
+
+  th.elaborate()
+
+  run_sim( th, cmdline_opts, duts=['runit'] )
+
+def test_basic_d( cmdline_opts ):
+
+  th = TestHarness( router_id=3 )
+
+  msgs = [
+    #           src  dest opaq  payload
+    NetMsgType( 0,   0,   0x10, 0x10101010 ),
+    NetMsgType( 0,   1,   0x11, 0x11111111 ),
+    NetMsgType( 0,   2,   0x12, 0x12121212 ),
+  ]
+
+  th.set_param("top.src.construct",   msgs=msgs  )
+  th.set_param("top.sinks[0].construct", msgs=[ m for m in msgs if m.dest == 2 ] )
+  th.set_param("top.sinks[1].construct", msgs=[ m for m in msgs if m.dest == 3 ] )
+  th.set_param("top.sinks[2].construct", msgs=[ m for m in msgs if m.dest in [0, 1] ] )
+  
+
+  th.elaborate()
+
+  run_sim( th, cmdline_opts, duts=['runit'] )
 #-------------------------------------------------------------------------
 # Test Cases: Very Simple
 #-------------------------------------------------------------------------
@@ -91,7 +153,7 @@ one = [
   NetMsgType( 0,   0,   0x10, 0x10101010 ),
 ]
 
-four = [
+four_a = [
   #           src  dest opaq  payload
   NetMsgType( 0,   0,   0x10, 0x10101010 ),
   NetMsgType( 0,   1,   0x11, 0x11111111 ),
@@ -101,16 +163,36 @@ four = [
 
 four_diff_src = [
   #           src  dest opaq  payload
-  NetMsgType( 3,   0,   0x10, 0x10101010 ),
+  NetMsgType( 3,   2,   0x10, 0x10101010 ),
   NetMsgType( 2,   1,   0x11, 0x11111111 ),
   NetMsgType( 1,   2,   0x12, 0x12121212 ),
-  NetMsgType( 0,   3,   0x13, 0x13131313 ),
+  NetMsgType( 0,   1,   0x13, 0x13131313 ),
+
 ]
 
-#''' LAB TASK ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-# Change above tests if necessary; add more directed tests
-#'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+four_b = [
+  #           src  dest opaq  payload
+  NetMsgType( 1,   0,   0x10, 0x10101010 ),
+  NetMsgType( 1,   1,   0x11, 0x11111111 ),
+  NetMsgType( 1,   2,   0x12, 0x12121212 ),
+  NetMsgType( 1,   3,   0x13, 0x13131313 ),
+]
 
+four_c = [
+  #           src  dest opaq  payload
+  NetMsgType( 2,   0,   0x10, 0x10101010 ),
+  NetMsgType( 2,   1,   0x11, 0x11111111 ),
+  NetMsgType( 2,   2,   0x12, 0x12121212 ),
+  NetMsgType( 2,   3,   0x13, 0x13131313 ),
+]
+
+four_d = [
+  #           src  dest opaq  payload
+  NetMsgType( 3,   0,   0x10, 0x10101010 ),
+  NetMsgType( 3,   1,   0x11, 0x11111111 ),
+  NetMsgType( 3,   2,   0x12, 0x12121212 ),
+  NetMsgType( 3,   3,   0x13, 0x13131313 ),
+]
 #-------------------------------------------------------------------------
 # Test Case Table
 #-------------------------------------------------------------------------
@@ -118,9 +200,11 @@ four_diff_src = [
 test_case_table = mk_test_case_table([
   (                              "msgs          src_delay sink_delay delay_mode"),
   [ "one",                        one,                 0,  0,  'fixed'  ],
-  [ "four",                       four,                0,  0,  'fixed'  ],
+  [ "four_a",                    four_a,               0,  0,  'fixed'  ],
   [ "four_diff_src",              four_diff_src,       0,  0,  'fixed'  ],
-
+  [ "four_b",                    four_b,               0,  0,  'fixed'  ],
+  [ "four_c",                    four_c,               0,  0,  'fixed'  ],
+  [ "four_d",                    four_d,               0,  0,  'fixed'  ],
   #'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 ])
@@ -141,19 +225,19 @@ def test_router_id_0( test_params, cmdline_opts ):
     interval_delay      = test_params.src_delay )
 
   th.set_param("top.sinks[0].construct",
-    msgs                = [ m for m in test_params.msgs if m.dest == 0 ],
+    msgs                = [ m for m in test_params.msgs if m.dest == 3 ],
     interval_delay_mode = test_params.delay_mode,
     initial_delay       = test_params.sink_delay,
     interval_delay      = test_params.sink_delay )
 
   th.set_param("top.sinks[1].construct",
-    msgs                = [ m for m in test_params.msgs if m.dest != 0 ],
+    msgs                = [ m for m in test_params.msgs if m.dest == 0 ],
     interval_delay_mode = test_params.delay_mode,
     initial_delay       = test_params.sink_delay,
     interval_delay      = test_params.sink_delay )
 
   th.set_param("top.sinks[2].construct",
-    msgs                = [],
+    msgs                = [ m for m in test_params.msgs if m.dest in [1, 2] ],
     interval_delay_mode = test_params.delay_mode,
     initial_delay       = test_params.sink_delay,
     interval_delay      = test_params.sink_delay )
@@ -161,6 +245,3 @@ def test_router_id_0( test_params, cmdline_opts ):
   th.elaborate()
 
   run_sim( th, cmdline_opts, duts=['runit'] )
-
-#'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-

@@ -59,21 +59,21 @@ class TestHarness( Component ):
 
 def test_basic( cmdline_opts ):
 
-  th = TestHarness()
+  th = TestHarness( router_id=0 )
 
   msgs = [
     #           src  dest opaq  payload
     NetMsgType( 1,   0,   0x10, 0x10101010 ),
-    NetMsgType( 2,   1,   0x11, 0x11111111 ),
-    NetMsgType( 0,   2,   0x12, 0x12121212 ),
+    NetMsgType( 0,   1,   0x11, 0x11111111 ),
+    NetMsgType( 2,   2,   0x12, 0x12121212 ),
   ]
 
   th.set_param("top.srcs[0].construct",  msgs=[ m for m in msgs if m.src  == 0 ] )
   th.set_param("top.srcs[1].construct",  msgs=[ m for m in msgs if m.src  == 1 ] )
   th.set_param("top.srcs[2].construct",  msgs=[ m for m in msgs if m.src  == 2 ] )
-  th.set_param("top.sinks[0].construct", msgs=[ m for m in msgs if m.dest == 0 ] )
-  th.set_param("top.sinks[1].construct", msgs=[ m for m in msgs if m.dest != 0 ] )
-  th.set_param("top.sinks[2].construct", msgs=[] )
+  th.set_param("top.sinks[0].construct", msgs=[ m for m in msgs if m.dest == 3 ] )
+  th.set_param("top.sinks[1].construct", msgs=[ m for m in msgs if m.dest == 0 ] )
+  th.set_param("top.sinks[2].construct", msgs=[ m for m in msgs if m.dest in [1, 2] ] )
 
   th.elaborate()
 
@@ -96,8 +96,8 @@ one = [
 rotate0 = [
   #           src  dest opaq  payload
   NetMsgType( 1,   0,   0x10, 0x10101010 ),
-  NetMsgType( 2,   1,   0x11, 0x11111111 ),
-  NetMsgType( 0,   2,   0x12, 0x12121212 ),
+  NetMsgType( 0,   1,   0x11, 0x11111111 ),
+  NetMsgType( 2,   2,   0x12, 0x12121212 ),
   NetMsgType( 0,   3,   0x13, 0x13131313 ),
 ]
 
@@ -153,9 +153,20 @@ all_to_dest3 = [
   NetMsgType( 0,   3,   0x12, 0x12121212 ),
 ]
 
-#''' LAB TASK ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-# Change above tests if necessary; add more directed and random tests
-#'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+multi_dest_mix = [
+  #           src  dest  opaq    payload
+  NetMsgType( 0,   0,    0x10,   0xAAAA0001 ),
+  NetMsgType( 1,   1,    0x11,   0xBBBB0002 ),
+  NetMsgType( 2,   2,    0x12,   0xCCCC0003 ),
+  NetMsgType( 0,   1,    0x13,   0xAAAA0004 ),
+  NetMsgType( 1,   2,    0x14,   0xBBBB0005 ),
+  NetMsgType( 2,   0,    0x15,   0xCCCC0006 ),
+]
+
+burst_many_msgs = [
+  NetMsgType( i % 3, (i + 1) % 3, 0x20 + i, 0xABCD0000 + i )
+  for i in range(12)
+]
 
 #-------------------------------------------------------------------------
 # Test Case Table
@@ -172,7 +183,8 @@ test_case_table = mk_test_case_table([
   [ "all_to_dest1",                   all_to_dest1,        0,  0,  'fixed',   True  ],
   [ "all_to_dest2",                   all_to_dest2,        0,  0,  'fixed',   True  ],
   [ "all_to_dest3",                   all_to_dest3,        0,  0,  'fixed',   True  ],
-
+  [ "multi_dest_mix",      multi_dest_mix,     0, 0, 'fixed', True ],   
+  [ "burst_many_msgs",     burst_many_msgs,    0, 0, 'fixed', True ],   
   #'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 ])
@@ -205,21 +217,21 @@ def test_router_id_0( test_params, cmdline_opts ):
     interval_delay      = test_params.src_delay )
 
   th.set_param("top.sinks[0].construct",
-    msgs                = [ m for m in test_params.msgs if m.dest == 0 ],
+    msgs                = [ m for m in test_params.msgs if m.dest == 3 ],
     interval_delay_mode = test_params.delay_mode,
     initial_delay       = test_params.sink_delay,
     interval_delay      = test_params.sink_delay,
     ordered             = test_params.ordered )
 
   th.set_param("top.sinks[1].construct",
-    msgs                = [ m for m in test_params.msgs if m.dest != 0 ],
+    msgs                = [ m for m in test_params.msgs if m.dest == 0 ],
     interval_delay_mode = test_params.delay_mode,
     initial_delay       = test_params.sink_delay,
     interval_delay      = test_params.sink_delay,
     ordered             = test_params.ordered )
 
   th.set_param("top.sinks[2].construct",
-    msgs                = [],
+    msgs                = [ m for m in test_params.msgs if m.dest in [1, 2] ],
     interval_delay_mode = test_params.delay_mode,
     initial_delay       = test_params.sink_delay,
     interval_delay      = test_params.sink_delay,
@@ -228,6 +240,3 @@ def test_router_id_0( test_params, cmdline_opts ):
   th.elaborate()
 
   run_sim( th, cmdline_opts, duts=['router'] )
-
-#'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-

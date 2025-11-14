@@ -233,6 +233,8 @@ module lab2_proc_ProcAltCtrl
   localparam br_blt = 3'd5;
   localparam br_bltu = 3'd6;
 
+  localparam br_ge = 3'd7;
+
   // Operand 1 Mux Select
 
   localparam bm_x     = 2'bx; // Don't care
@@ -370,8 +372,7 @@ module lab2_proc_ProcAltCtrl
       `TINYRV2_INST_BEQ     :cs( y, br_beq,  imm_b, y, bm_rf,  y, alu_br,  nr, wm_a, n,  n,   n    );
       `TINYRV2_INST_BLT     :cs( y, br_blt,  imm_b, y, bm_rf,  y, alu_br,  nr, wm_a, n,  n,   n    );
       `TINYRV2_INST_BLTU    :cs( y, br_bltu, imm_b, y, bm_rf,  y, alu_br,  nr, wm_a, n,  n,   n    );
-    
-
+      `TINYRV2_INST_BGE     :cs( y, br_ge,   imm_b, y, bm_rf,  y, alu_br,  nr, wm_a, n,  n,   n    );
 
       default              :cs( n, br_x,  imm_x, n, bm_x,    n, alu_x,   nr, wm_x, n,  n,   n    );
 
@@ -552,6 +553,10 @@ end
       pc_redirect_X = br_cond_bltu;
       pc_sel_X      = 2'b1; // use branch target
     end
+    else if(val_X &&  (br_type_X == br_ge)) begin
+      pc_redirect_X = !br_cond_blt;
+      pc_sel_X      = 2'b1; // use branch target
+    end
     else begin
       pc_redirect_X = 1'b0;
       pc_sel_X      = 2'b0; // use pc+4
@@ -569,7 +574,8 @@ end
 
   logic osquash_br_X;
   assign osquash_br_X = val_X && (((br_type_X == br_bne) && !br_cond_eq_X) || ((br_type_X == br_beq) && br_cond_eq_X)
-                            || ((br_type_X == br_blt) && br_cond_blt) || ((br_type_X == br_bltu) && br_cond_bltu));  // branches
+                            || ((br_type_X == br_blt) && br_cond_blt) || ((br_type_X == br_bltu) && br_cond_bltu)
+                            || ((br_type_X == br_ge) && !br_cond_blt));  // branches
 
   assign osquash_X = val_X && !stall_X && (pc_redirect_X || osquash_jalr_X || osquash_br_X);
 

@@ -62,9 +62,147 @@ module lab4_sys_SingleCoreSys
   output logic          dcache_miss
 );
 
-  //''' LAB TASK '''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-  // Instantiate and connect processor and caches
-  //''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+  parameter p_num_cores = 1;
+
+  // Processor <-> iCache Interface
+
+  mem_req_4B_t   icache_reqstream_msg;
+  logic          icache_reqstream_val;
+  logic          icache_reqstream_rdy;
+
+  mem_resp_4B_t  icache_respstream_msg;
+  logic          icache_respstream_val;
+  logic          icache_respstream_rdy;
+
+  // Processor <-> dCache Interface
+
+  mem_req_4B_t   dcache_reqstream_msg;
+  logic          dcache_reqstream_val;
+  logic          dcache_reqstream_rdy;
+
+  mem_resp_4B_t  dcache_respstream_msg;
+  logic          dcache_respstream_val;
+  logic          dcache_respstream_rdy;
+
+
+
+
+  lab2_proc_ProcAlt
+#(
+  .p_num_cores(p_num_cores)
+)
+  proc
+(
+  .clk(clk),
+  .reset(reset),
+
+  // From mngr streaming port
+
+  .mngr2proc_msg(mngr2proc_msg),
+  .mngr2proc_val(mngr2proc_val),
+  .mngr2proc_rdy(mngr2proc_rdy),
+
+  // To mngr streaming port
+
+  .proc2mngr_msg(proc2mngr_msg),
+  .proc2mngr_val(proc2mngr_val),
+  .proc2mngr_rdy(proc2mngr_rdy),
+
+  // Instruction Memory Request Port
+
+  .imem_reqstream_msg(icache_reqstream_msg),
+  .imem_reqstream_val(icache_reqstream_val),
+  .imem_reqstream_rdy(icache_reqstream_rdy),
+
+  // Instruction Memory Response Port
+
+  .imem_respstream_msg(icache_respstream_msg),
+  .imem_respstream_val(icache_respstream_val),
+  .imem_respstream_rdy(icache_respstream_rdy),
+
+  // Data Memory Request Port
+
+  .dmem_reqstream_msg(dcache_reqstream_msg),
+  .dmem_reqstream_val(dcache_reqstream_val),
+  .dmem_reqstream_rdy(dcache_reqstream_rdy),
+
+  // Data Memory Response Port
+
+  .dmem_respstream_msg(dcache_respstream_msg),
+  .dmem_respstream_val(dcache_respstream_val),
+  .dmem_respstream_rdy(dcache_respstream_rdy),
+
+  // stats output; core_id is an input port rather than a parameter so
+  // that the module only needs to be compiled once. If it were a
+  // parameter, each core would be compiled separately.
+
+  .core_id(32'd0),
+  .commit_inst(commit_inst),
+  .stats_en(stats_en)
+);
+
+
+lab3_mem_CacheAlt
+#(
+  .p_num_banks(p_num_cores) // Total number of cache banks
+)
+icache
+(
+  .clk(clk),
+  .reset(reset),
+
+  // Processor <-> Cache Interface
+
+  .proc2cache_reqstream_msg(icache_reqstream_msg),
+  .proc2cache_reqstream_val(icache_reqstream_val),
+  .proc2cache_reqstream_rdy(icache_reqstream_rdy),
+
+  .proc2cache_respstream_msg(icache_respstream_msg),
+  .proc2cache_respstream_val(icache_respstream_val),
+  .proc2cache_respstream_rdy(icache_respstream_rdy),
+
+  // Cache <-> Memory Interface
+
+  .cache2mem_reqstream_msg(imem_reqstream_msg),
+  .cache2mem_reqstream_val(imem_reqstream_val),
+  .cache2mem_reqstream_rdy(imem_reqstream_rdy),
+
+  .cache2mem_respstream_msg(imem_respstream_msg),
+  .cache2mem_respstream_val(imem_respstream_val),
+  .cache2mem_respstream_rdy(imem_respstream_rdy)
+);
+
+
+lab3_mem_CacheAlt
+#(
+  .p_num_banks(p_num_cores) // Total number of cache banks
+)
+dcache
+(
+  .clk(clk),
+  .reset(reset),
+
+  // Processor <-> Cache Interface
+
+  .proc2cache_reqstream_msg(dcache_reqstream_msg),
+  .proc2cache_reqstream_val(dcache_reqstream_val),
+  .proc2cache_reqstream_rdy(dcache_reqstream_rdy),
+
+  .proc2cache_respstream_msg(dcache_respstream_msg),
+  .proc2cache_respstream_val(dcache_respstream_val),
+  .proc2cache_respstream_rdy(dcache_respstream_rdy),
+
+  // Cache <-> Memory Interface
+
+  .cache2mem_reqstream_msg(dmem_reqstream_msg),
+  .cache2mem_reqstream_val(dmem_reqstream_val),
+  .cache2mem_reqstream_rdy(dmem_reqstream_rdy),
+
+  .cache2mem_respstream_msg(dmem_respstream_msg),
+  .cache2mem_respstream_val(dmem_respstream_val),
+  .cache2mem_respstream_rdy(dmem_respstream_rdy)
+);
+
 
   // Use some extra ports to report on the number of cache accesses and
   // misses to be able to calculate the miss rate in the evaluation
