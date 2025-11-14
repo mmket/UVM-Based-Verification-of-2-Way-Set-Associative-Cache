@@ -39,16 +39,22 @@ class Tests:
 
   @pytest.mark.parametrize( "name,test", [
     asm_test( inst_mem_mcore.gen_basic_test     ),
+    asm_test( inst_mem_mcore.gen_csr_test       ),
+    asm_test( inst_mem_mcore.gen_regreg_test    ),
+    asm_test( inst_mem_mcore.gen_regimm_test    ),
+    asm_test( inst_mem_mcore.gen_memory_test    ),
+    asm_test( inst_mem_mcore.gen_branch_test    ),
+    asm_test( inst_mem_mcore.gen_jump_test      ),
+    asm_test( inst_mem_mcore.gen_mixed_test     ),
+    asm_test( inst_mem_mcore.gen_random_test ),
+    asm_test( inst_mem_mcore.gen_random_mul_test ),
+    asm_test( inst_mem_mcore.gen_random_addi_test ),
 
-    #''' LAB TASK ''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-    # Add more rows to the test case table to test more complicated
-    # scenarios.
-    #'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
   ])
   def test_mem_mcore( s, name, test ):
     run_test( s.SysType, test, cmdline_opts=s.__class__.cmdline_opts )
 
-  #''' LAB TASK ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-  # random stall and delay
-  #'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
+  def test_mem_mcore_delays( s ):
+    run_test( s.SysType, inst_mem_mcore.gen_random_test, delays=True,
+              cmdline_opts=s.__class__.cmdline_opts )

@@ -360,6 +360,10 @@ module lab2_proc_ProcAltCtrl
       `TINYRV2_INST_SRAI    :cs( y, br_na,  imm_i, y, bm_imm,  n, alu_sra, nr, wm_a, y,  n,   n    );
       `TINYRV2_INST_SLLI    :cs( y, br_na,  imm_i, y, bm_imm,  n, alu_sll, nr, wm_a, y,  n,   n    );
 
+      `TINYRV2_INST_XORI    :cs( y, br_na,  imm_i, y, bm_imm,  n, alu_xor, nr, wm_a, y,  n,   n    );
+      `TINYRV2_INST_ANDI    :cs( y, br_na,  imm_i, y, bm_imm,  n, alu_and, nr, wm_a, y,  n,   n    );
+      `TINYRV2_INST_SRLI    :cs( y, br_na,  imm_i, y, bm_imm,  n, alu_srl, nr, wm_a, y,  n,   n    );
+
       `TINYRV2_INST_LUI     :cs( y, br_na,  imm_u, n, bm_imm,  n, alu_cp1, nr, wm_a, y,  n,   n    );
       `TINYRV2_INST_AUIPC   :cs( y, br_na,  imm_u, y, bm_imm,  n, alu_add, nr, wm_a, y,  n,   n    );
 
