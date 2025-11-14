@@ -42,9 +42,120 @@ module lab4_sys_Net
   logic                   channels_ccw_val [4];
   logic                   channels_ccw_rdy [4];
 
-  //''' LAB TASK '''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-  // Implement ring network with four routers
-  //''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+  genvar k;
+
+  logic [p_msg_nbits-1:0] router_in_msg [0:3][0:2];   // [router] [port]
+  logic                   router_in_val [0:3][0:2];
+  logic                   router_in_rdy [0:3][0:2];
+
+  logic [p_msg_nbits-1:0] router_out_msg [0:3][0:2];   // [router] [port]
+  logic                   router_out_val [0:3][0:2];
+  logic                   router_out_rdy [0:3][0:2];
+
+
+
+  // Router 0
+  assign router_in_msg[0][0] = router_out_msg[3][2];
+  assign router_in_val[0][0] = router_out_val[3][2];
+  assign router_out_rdy[3][2] = router_in_rdy[0][0];
+
+  assign router_in_msg[0][1] = istream_msg[0];
+  assign router_in_val[0][1] = istream_val[0];
+  assign istream_rdy[0] = router_in_rdy[0][1];
+
+  assign router_in_msg[0][2] = router_out_msg[1][0];
+  assign router_in_val[0][2] = router_out_val[1][0];
+  assign router_out_rdy[1][0] = router_in_rdy[0][2];
+
+
+  // Router 1
+  assign router_in_msg[1][0] = router_out_msg[0][2];
+  assign router_in_val[1][0] = router_out_val[0][2];
+  assign router_out_rdy[0][2] = router_in_rdy[1][0];
+
+  assign router_in_msg[1][1] = istream_msg[1];
+  assign router_in_val[1][1] = istream_val[1];
+  assign istream_rdy[1] = router_in_rdy[1][1];
+
+  assign router_in_msg[1][2] = router_out_msg[2][0];
+  assign router_in_val[1][2] = router_out_val[2][0];
+  assign router_out_rdy[2][0] = router_in_rdy[1][2];
+
+  // Router 2
+  assign router_in_msg[2][0] = router_out_msg[1][2];
+  assign router_in_val[2][0] = router_out_val[1][2];
+  assign router_out_rdy[1][2] = router_in_rdy[2][0];
+
+  assign router_in_msg[2][1] = istream_msg[2];
+  assign router_in_val[2][1] = istream_val[2];
+  assign istream_rdy[2] = router_in_rdy[2][1];
+
+  assign router_in_msg[2][2] = router_out_msg[3][0];
+  assign router_in_val[2][2] = router_out_val[3][0];
+  assign router_out_rdy[3][0] = router_in_rdy[2][2];
+  
+
+  // Router 3
+  assign router_in_msg[3][0] = router_out_msg[2][2];
+  assign router_in_val[3][0] = router_out_val[2][2];
+  assign router_out_rdy[2][2] = router_in_rdy[3][0];
+
+  assign router_in_msg[3][1] = istream_msg[3];
+  assign router_in_val[3][1] = istream_val[3];
+  assign istream_rdy[3] = router_in_rdy[3][1];
+
+  assign router_in_msg[3][2] = router_out_msg[0][0];
+  assign router_in_val[3][2] = router_out_val[0][0];
+  assign router_out_rdy[0][0] = router_in_rdy[3][2];
+
+
+  // Output 
+  assign ostream_msg[0] = router_out_msg[0][1];
+  assign ostream_val[0] = router_out_val[0][1];
+  assign router_out_rdy[0][1] = ostream_rdy[0];
+
+  assign ostream_msg[1] = router_out_msg[1][1];
+  assign ostream_val[1] = router_out_val[1][1];
+  assign router_out_rdy[1][1] = ostream_rdy[1];
+
+  assign ostream_msg[2] = router_out_msg[2][1];
+  assign ostream_val[2] = router_out_val[2][1];
+  assign router_out_rdy[2][1] = ostream_rdy[2];
+
+  assign ostream_msg[3] = router_out_msg[3][1];
+  assign ostream_val[3] = router_out_val[3][1];
+  assign router_out_rdy[3][1] = ostream_rdy[3];
+
+
+generate
+  for(k=0; k<4; k=k+1) begin
+      lab4_sys_NetRouter
+    #(
+      .p_msg_nbits(p_msg_nbits)
+    )
+      Router
+    (
+      .clk(clk),
+      .reset(reset),
+
+      // Router id (which router is this in the network?)
+
+      .router_id(k),
+
+      // Input streams
+
+      .istream_msg(router_in_msg[k]),
+      .istream_val(router_in_val[k]),
+      .istream_rdy(router_in_rdy[k]),
+
+      // Output streams
+
+      .ostream_msg(router_out_msg[k]),
+      .ostream_val(router_out_val[k]),
+      .ostream_rdy(router_out_rdy[k])
+    );
+  end
+endgenerate
 
   //----------------------------------------------------------------------
   // Line Tracing

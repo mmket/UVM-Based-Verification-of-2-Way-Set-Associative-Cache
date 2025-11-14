@@ -456,7 +456,7 @@ module lab2_proc_ProcAltCtrl
 
   logic ostall_imul_D;
 
-  assign ostall_imul_D = val_D && !imul_req_rdy_D;    // stall if imul is not ready
+  assign ostall_imul_D = val_D && (!imul_req_rdy_D && !(imul_resp_val_X && (alu_fn_D !== alu_mul)));    // stall if imul is not ready
 
   // Final ostall signal
 

@@ -29,10 +29,6 @@ from lab2_proc.test import inst_jal
 
 from lab4_sys.test  import inst_csr_mcore
 
-#''' LAB TASK ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-# Import additional files from lab2_proc.test as necessary
-#'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
 #-------------------------------------------------------------------------
 # Tests
 #-------------------------------------------------------------------------
@@ -101,38 +97,39 @@ class Tests:
 
   @pytest.mark.parametrize( "name,test", [
     asm_test( inst_mul.gen_basic_test     ),
-
-    #''' LAB TASK ''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-    # Add more rows to the test case table to test more complicated
-    # scenarios.
-    #'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    asm_test( inst_mul.gen_dest_dep_test  ),
+    asm_test( inst_add.gen_src0_dep_test  ),
+    asm_test( inst_add.gen_src1_dep_test  ),
+    asm_test( inst_add.gen_srcs_dep_test  ),
+    asm_test( inst_add.gen_srcs_dest_test ),
+    asm_test( inst_add.gen_value_test     ),
+    asm_test( inst_add.gen_random_test    ),
   ])
   def test_mul( s, name, test ):
     run_test( s.SysType, test, cmdline_opts=s.__class__.cmdline_opts )
 
-  #'''' LAB TASK '''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-  # random stall and delay
-  #'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
+  def test_mul_delays( s ):
+    run_test( s.SysType, inst_add.gen_random_test, delays=True,
+              cmdline_opts=s.__class__.cmdline_opts )
   #-----------------------------------------------------------------------
   # addi
   #-----------------------------------------------------------------------
 
   @pytest.mark.parametrize( "name,test", [
     asm_test( inst_addi.gen_basic_test     ) ,
-
-    #''' LAB TASK ''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-    # Add more rows to the test case table to test more complicated
-    # scenarios.
-    #'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    asm_test( inst_addi.gen_src_dep_test     ) ,
+    asm_test( inst_addi.gen_src_eq_dest_test     ) ,
+    asm_test( inst_addi.gen_value_test     ) ,
+    asm_test( inst_addi.gen_random_test     ) ,
+    asm_test( inst_addi.gen_src_dep_test     ) ,  
+    asm_test( inst_addi.gen_src_imm_dep_test    ) ,
   ])
   def test_addi( s, name, test ):
     run_test( s.SysType, test, cmdline_opts=s.__class__.cmdline_opts )
 
-  #''' LAB TASK ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-  # random stall and delay
-  #'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-
+  def test_addi_delays( s ):
+    run_test( s.SysType, inst_add.gen_random_test, delays=True,
+              cmdline_opts=s.__class__.cmdline_opts )
   #-----------------------------------------------------------------------
   # lw
   #-----------------------------------------------------------------------
@@ -158,18 +155,18 @@ class Tests:
 
   @pytest.mark.parametrize( "name,test", [
     asm_test( inst_sw.gen_basic_test     ),
-
-    #''' LAB TASK ''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-    # Add more rows to the test case table to test more complicated
-    # scenarios.
-    #'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    asm_test( inst_sw.gen_sw_dest_dep ) ,
+    asm_test( inst_sw.gen_sw_base_dep  ) ,
+    asm_test( inst_sw.gen_srcs_dest_test  ) ,
+    asm_test( inst_sw.gen_addr_test ) ,
+    asm_test( inst_sw.gen_random_test   ) ,
   ])
   def test_sw( s, name, test ):
     run_test( s.SysType, test, cmdline_opts=s.__class__.cmdline_opts )
 
-  #''' LAB TASK ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-  # random stall and delay
-  #'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+  def test_sw_delays( s ):
+    run_test( s.SysType, inst_lw.gen_random_test, delays=True,
+              cmdline_opts=s.__class__.cmdline_opts )
 
   #-----------------------------------------------------------------------
   # bne
@@ -190,9 +187,9 @@ class Tests:
   def test_bne( s, name, test ):
     run_test( s.SysType, test, cmdline_opts=s.__class__.cmdline_opts )
 
-  #''' LAB TASK ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-  # random stall and delay
-  #'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+  def test_bne_delays( s ):
+    run_test( s.SysType, inst_lw.gen_random_test, delays=True,
+              cmdline_opts=s.__class__.cmdline_opts )
 
   #-----------------------------------------------------------------------
   # jal
@@ -200,16 +197,15 @@ class Tests:
 
   @pytest.mark.parametrize( "name,test", [
     asm_test( inst_jal.gen_basic_test        ) ,
-
-    #''' LAB TASK ''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-    # Add more rows to the test case table to test more complicated
-    # scenarios.
-    #'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    asm_test( inst_jal.gen_multijump_test       ) ,
+    asm_test( inst_jal.gen_data_test       ) ,
+    asm_test( inst_jal.gen_back_to_back_test      ) ,
+    asm_test( inst_jal.gen_random_test      ) , 
   ])
 
   def test_jal( s, name, test ):
     run_test( s.SysType, test, cmdline_opts=s.__class__.cmdline_opts )
 
-  #''' LAB TASK ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-  # random stall and delay
-  #'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+  def test_jal_delays( s ):
+    run_test( s.SysType, inst_lw.gen_random_test, delays=True,
+              cmdline_opts=s.__class__.cmdline_opts )

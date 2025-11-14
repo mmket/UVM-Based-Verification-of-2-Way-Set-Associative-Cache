@@ -104,8 +104,8 @@ module lab3_mem_CacheAltDpath
 
   logic  [1:0] cachereq_addr_byte_offset;
   logic  [1:0] cachereq_addr_word_offset;
-  logic  [3:0] cachereq_addr_index;
-  logic [23:0] cachereq_addr_tag;
+  logic  [2:0] cachereq_addr_index;
+  logic [24:0] cachereq_addr_tag;
   logic  [1:0] cachereq_addr_bank;
 
   logic [31:0] mk_addr_refill;
@@ -225,7 +225,7 @@ module lab3_mem_CacheAltDpath
   );
 
   // Way 1
-  // Tag array (16 tags, 24 bits/tag)
+  // Tag array (16 tags, 25 bits/tag)
   vc_CombinationalBitSRAM_1rw
   #(
     .p_data_nbits  (25),

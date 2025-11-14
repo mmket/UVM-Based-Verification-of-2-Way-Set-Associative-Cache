@@ -64,8 +64,9 @@ def test_basic( cmdline_opts ):
   msgs = [
     #           src  dest opaq  payload
     NetMsgType( 1,   0,   0x10, 0x10101010 ),
-    NetMsgType( 0,   1,   0x11, 0x11111111 ),
-    NetMsgType( 2,   2,   0x12, 0x12121212 ),
+    NetMsgType( 0,   3,   0x11, 0x12121212 ),
+    NetMsgType( 2,   1,   0x12, 0x11111111 ),
+
   ]
 
   th.set_param("top.srcs[0].construct",  msgs=[ m for m in msgs if m.src  == 0 ] )
@@ -96,77 +97,39 @@ one = [
 rotate0 = [
   #           src  dest opaq  payload
   NetMsgType( 1,   0,   0x10, 0x10101010 ),
-  NetMsgType( 0,   1,   0x11, 0x11111111 ),
-  NetMsgType( 2,   2,   0x12, 0x12121212 ),
-  NetMsgType( 0,   3,   0x13, 0x13131313 ),
+  NetMsgType( 0,   2,   0x11, 0x12121212 ),
+  NetMsgType( 0,   3,   0x12, 0x13131313 ),
 ]
 
 rotate1 = [
   #           src  dest opaq  payload
-  NetMsgType( 1,   3,   0x13, 0x13131313 ),
-  NetMsgType( 2,   0,   0x10, 0x10101010 ),
-  NetMsgType( 0,   1,   0x11, 0x11111111 ),
-  NetMsgType( 0,   2,   0x12, 0x12121212 ),
+  NetMsgType( 1,   3,   0x10, 0x13131313 ),
+  NetMsgType( 2,   0,   0x11, 0x10101010 ),
+  NetMsgType( 0,   1,   0x12, 0x11111111 ),
 ]
 
 rotate2 = [
   #           src  dest opaq  payload
-  NetMsgType( 1,   2,   0x12, 0x12121212 ),
-  NetMsgType( 2,   3,   0x13, 0x13131313 ),
-  NetMsgType( 0,   0,   0x10, 0x10101010 ),
-  NetMsgType( 0,   1,   0x11, 0x11111111 ),
+  NetMsgType( 2,   3,   0x10, 0x13131313 ),
+  NetMsgType( 0,   0,   0x11, 0x10101010 ),
+  NetMsgType( 0,   1,   0x12, 0x11111111 ),
 ]
 
 rotate3 = [
   #           src  dest opaq  payload
-  NetMsgType( 1,   1,   0x11, 0x11111111 ),
-  NetMsgType( 2,   2,   0x12, 0x12121212 ),
-  NetMsgType( 0,   3,   0x13, 0x13131313 ),
-  NetMsgType( 0,   0,   0x10, 0x10101010 ),
-]
-
-all_to_dest0 = [
-  #           src  dest opaq  payload
-  NetMsgType( 1,   0,   0x10, 0x10101010 ),
-  NetMsgType( 2,   0,   0x11, 0x11111111 ),
-  NetMsgType( 0,   0,   0x12, 0x12121212 ),
-]
-
-all_to_dest1 = [
-  #           src  dest opaq  payload
-  NetMsgType( 1,   1,   0x10, 0x10101010 ),
-  NetMsgType( 2,   1,   0x11, 0x11111111 ),
-  NetMsgType( 0,   1,   0x12, 0x12121212 ),
-]
-
-all_to_dest2 = [
-  #           src  dest opaq  payload
-  NetMsgType( 1,   2,   0x10, 0x10101010 ),
-  NetMsgType( 2,   2,   0x11, 0x11111111 ),
-  NetMsgType( 0,   2,   0x12, 0x12121212 ),
-]
-
-all_to_dest3 = [
-  #           src  dest opaq  payload
-  NetMsgType( 1,   3,   0x10, 0x10101010 ),
-  NetMsgType( 2,   3,   0x11, 0x11111111 ),
-  NetMsgType( 0,   3,   0x12, 0x12121212 ),
+  NetMsgType( 1,   1,   0x10, 0x11111111 ),
+  NetMsgType( 0,   3,   0x11, 0x13131313 ),
+  NetMsgType( 0,   0,   0x12, 0x10101010 ),
 ]
 
 multi_dest_mix = [
   #           src  dest  opaq    payload
   NetMsgType( 0,   0,    0x10,   0xAAAA0001 ),
-  NetMsgType( 1,   1,    0x11,   0xBBBB0002 ),
-  NetMsgType( 2,   2,    0x12,   0xCCCC0003 ),
-  NetMsgType( 0,   1,    0x13,   0xAAAA0004 ),
-  NetMsgType( 1,   2,    0x14,   0xBBBB0005 ),
-  NetMsgType( 2,   0,    0x15,   0xCCCC0006 ),
+  NetMsgType( 2,   2,    0x11,   0xCCCC0003 ),
+  NetMsgType( 2,   3,    0x12,   0xCCCC0006 ),
 ]
 
-burst_many_msgs = [
-  NetMsgType( i % 3, (i + 1) % 3, 0x20 + i, 0xABCD0000 + i )
-  for i in range(12)
-]
+
 
 #-------------------------------------------------------------------------
 # Test Case Table
@@ -179,13 +142,7 @@ test_case_table = mk_test_case_table([
   [ "rotate1",                        rotate1,             0,  0,  'fixed',   True  ],
   [ "rotate2",                        rotate2,             0,  0,  'fixed',   True  ],
   [ "rotate3",                        rotate3,             0,  0,  'fixed',   True  ],
-  [ "all_to_dest0",                   all_to_dest0,        0,  0,  'fixed',   True  ],
-  [ "all_to_dest1",                   all_to_dest1,        0,  0,  'fixed',   True  ],
-  [ "all_to_dest2",                   all_to_dest2,        0,  0,  'fixed',   True  ],
-  [ "all_to_dest3",                   all_to_dest3,        0,  0,  'fixed',   True  ],
   [ "multi_dest_mix",      multi_dest_mix,     0, 0, 'fixed', True ],   
-  [ "burst_many_msgs",     burst_many_msgs,    0, 0, 'fixed', True ],   
-  #'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 ])
 

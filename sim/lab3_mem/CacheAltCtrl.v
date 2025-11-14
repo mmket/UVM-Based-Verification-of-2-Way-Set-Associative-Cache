@@ -116,8 +116,11 @@ module lab3_mem_CacheAltCtrl
   logic [1:0] tag_match;
   logic hit_way;
 
+  logic is_init;
+
   always_ff @(posedge clk) begin
     if(reset) way_sel <= 0;
+    else if(is_init) way_sel <= 0;
     else if((state_reg == STATE_TAG_CHECK) && hit_TC) way_sel <= hit_way;
     else if(state_reg == STATE_TAG_CHECK) way_sel <= least_recent_used;
   end
@@ -262,6 +265,8 @@ module lab3_mem_CacheAltCtrl
     else state_reg <= next_state;
   end
 
+  assign is_init = (cachereq_type == `VC_MEM_REQ_MSG_TYPE_WRITE_INIT);
+
   // Controls from FSM
   task cs
   (
@@ -302,7 +307,7 @@ module lab3_mem_CacheAltCtrl
       STATE_IDLE:             cs( 1,   0,    1,    0,    0,    0,    0,    0,    0,    0,    0     );
       STATE_TAG_CHECK:        cs( 0,   0,    0,    0,    1,    0,    0,    0,    0,    0,    0     );
 
-      STATE_INIT_DATA_ACCESS: cs( 0,   0,    0,    1,    0,    1,    0,    1,    1,    0,    1     );
+      STATE_INIT_DATA_ACCESS: cs( 0,   0,    0,    1,    0,    1,    0,    1,    1,    0,    0     );
       STATE_READ_DATA_ACCESS: cs( 0,   0,    0,    0,    0,    0,    1,    0,    0,    0,    0     );
       STATE_WRITE_DATA_ACCESS:cs( 0,   0,    0,    0,    0,    1,    0,    0,    0,    1,    1     );
 
