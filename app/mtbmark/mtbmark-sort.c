@@ -30,7 +30,7 @@ static void mtbmark_sort_worker( void* arg )
     ubmark_sort( t->base + t->start, t->len );
 }
 
-static void merge_two_runs( int* x,
+void merge_two_runs( int* x,
                             int  start1, int len1,
                             int  start2, int len2,
                             int* tmp )
@@ -65,13 +65,6 @@ static void merge_two_runs( int* x,
 
 void mtbmark_sort( int* x, int size )
 {
-  //''' LAB TASK '''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-  // Implement single-threaded sorting algorithm here
-  //''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-  // These macros allow the function to compile. Once you have
-  // implemented your algorithm you should remove these macros.
-
-
   if ( size <= 1 )
     return;
 
