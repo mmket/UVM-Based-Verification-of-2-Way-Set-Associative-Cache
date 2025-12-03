@@ -360,12 +360,19 @@ class MultiCoreTestHarness(Component):
 
     # Bring the stats enable up to the top level
 
+    # s.stats_en      //= s.sys.stats_en
+    # s.commit_inst   //= s.sys.commit_inst
+    # s.icache_access //= 0
+    # s.icache_miss   //= 0
+    # s.dcache_access //= 0
+    # s.dcache_miss   //= 0
+
     s.stats_en      //= s.sys.stats_en
     s.commit_inst   //= s.sys.commit_inst
-    s.icache_access //= 0
-    s.icache_miss   //= 0
-    s.dcache_access //= 0
-    s.dcache_miss   //= 0
+    s.icache_access //= s.sys.icache_access
+    s.icache_miss   //= s.sys.icache_miss
+    s.dcache_access //= s.sys.dcache_access
+    s.dcache_miss   //= s.sys.dcache_miss
 
   #-----------------------------------------------------------------------
   # load

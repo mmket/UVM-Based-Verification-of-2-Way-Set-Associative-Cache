@@ -239,10 +239,35 @@ module lab4_sys_MultiCoreSys
   //----------------------------------------------------------------------
   // Eventually we need to figure out how to handle these.
 
-  assign icache_access = 0;
-  assign icache_miss   = 0;
-  assign dcache_access = 0;
-  assign dcache_miss   = 0;
+  // I-cache: count all core I$ accesses (proc->icache)
+assign icache_access =
+       (proc2icache_reqstream_val[0] & proc2icache_reqstream_rdy[0]);
+      //   |
+      //  (proc2icache_reqstream_val[1] & proc2icache_reqstream_rdy[1]) |
+      //  (proc2icache_reqstream_val[2] & proc2icache_reqstream_rdy[2]) |
+      //  (proc2icache_reqstream_val[3] & proc2icache_reqstream_rdy[3]);
+
+// I-cache misses: any I$ miss that goes out to memory
+assign icache_miss =
+       (icache2imemnet_reqstream_val[0] & icache2imemnet_reqstream_rdy[0]);
+      //   |
+      //  (icache2imemnet_reqstream_val[1] & icache2imemnet_reqstream_rdy[1]) |
+      //  (icache2imemnet_reqstream_val[2] & icache2imemnet_reqstream_rdy[2]) |
+      //  (icache2imemnet_reqstream_val[3] & icache2imemnet_reqstream_rdy[3]);
+// or use resp + test[0] if the lab wants that
+
+// D-cache: accesses from cores to the shared MultiCoreDataCache
+assign dcache_access =
+       (proc2dcache_reqstream_val[0] & proc2dcache_reqstream_rdy[0]);
+      //   |
+      //  (proc2dcache_reqstream_val[1] & proc2dcache_reqstream_rdy[1]) |
+      //  (proc2dcache_reqstream_val[2] & proc2dcache_reqstream_rdy[2]) |
+      //  (proc2dcache_reqstream_val[3] & proc2dcache_reqstream_rdy[3]);
+
+// D-cache misses: every time the shared D$ goes to main memory
+assign dcache_miss =
+       dmem_reqstream_val & dmem_reqstream_rdy;
+// or resp+test[0], matching whatever they did in SingleCoreSys
 
   //----------------------------------------------------------------------
   // Line Traceing
