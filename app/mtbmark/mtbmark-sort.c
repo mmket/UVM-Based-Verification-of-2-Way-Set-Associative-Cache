@@ -23,11 +23,28 @@ typedef struct {
   int  len;
 } sort_task_t;
 
+typedef struct {
+  int* x;
+  int  start1;
+  int  len1;
+  int  start2;
+  int  len2;
+  int* tmp;
+} merge_task_t;
+
 static void mtbmark_sort_worker( void* arg )
 {
   sort_task_t* t = (sort_task_t*) arg;
   if ( t->len > 0 )
     ubmark_sort( t->base + t->start, t->len );
+}
+
+static void mtbmark_merge_worker( void* arg )
+{
+  merge_task_t* t = (merge_task_t*) arg;
+  if ( t->len1 > 0 && t->len2 > 0 )
+    merge_two_runs( t->x, t->start1, t->len1,
+                    t->start2, t->len2, t->tmp );
 }
 
 void merge_two_runs( int* x,
@@ -68,6 +85,12 @@ void mtbmark_sort( int* x, int size )
   if ( size <= 1 )
     return;
 
+  // If input larger than our static tmp buffer, fall back to single-threaded
+  if ( size > MTBMARK_MAX_SIZE ) {
+    ubmark_sort( x, size );
+    return;
+  }
+
   // We assume 4 workers/cores: 0,1,2,3
   const int nworkers = 4;
 
@@ -82,7 +105,7 @@ void mtbmark_sort( int* x, int size )
     tasks[w].len   = end - start;
   }
 
-  // Spawn workers on cores 1,2,3
+  // Spawn workers on cores 1,2,3 to sort their blocks
   for ( int w = 1; w < nworkers; w++ ) {
     if ( tasks[w].len > 0 )
       ece4750_bthread_spawn( w, mtbmark_sort_worker, &tasks[w] );
@@ -98,7 +121,7 @@ void mtbmark_sort( int* x, int size )
       ece4750_bthread_join( w );
   }
 
-  // All four blocks are now individually sorted:
+  // At this point, we have four sorted runs:
   // [0] : [s0 .. s0+len0-1]
   // [1] : [s1 .. s1+len1-1]
   // [2] : [s2 .. s2+len2-1]
@@ -115,29 +138,65 @@ void mtbmark_sort( int* x, int size )
   int s3 = tasks[3].start;
   int l3 = tasks[3].len;
 
-  // Merge block0 + block1
-  if ( l0 > 0 && l1 > 0 )
+  // Common case: all four blocks non-empty -> parallelize first two merges
+  if ( l0 > 0 && l1 > 0 && l2 > 0 && l3 > 0 ) {
+
+    // Prepare merge task for blocks 2+3 on core 1, using the "back" half of tmp
+    merge_task_t mtask1;
+    mtask1.x      = x;
+    mtask1.start1 = s2;
+    mtask1.len1   = l2;
+    mtask1.start2 = s3;
+    mtask1.len2   = l3;
+    mtask1.tmp    = tmp + (l0 + l1);  // disjoint region from the front
+
+    // Spawn merge of blocks 2+3 on core 1
+    ece4750_bthread_spawn( 1, mtbmark_merge_worker, &mtask1 );
+
+    // Core 0 merges blocks 0+1 using the front part of tmp
     merge_two_runs( x, s0, l0, s1, l1, tmp );
-  else if ( l1 > 0 ) {
-    // If block0 empty and block1 non-empty, just treat block1 as the first run
-    s0 = s1;
-    l0 = l1;
-  }
-  l0 = l0 + l1; // combined length of [0]+[1]
 
-  // Merge block2 + block3
-  if ( l2 > 0 && l3 > 0 )
-    merge_two_runs( x, s2, l2, s3, l3, tmp );
-  else if ( l3 > 0 ) {
-    s2 = s3;
-    l2 = l3;
-  }
-  l2 = l2 + l3; // combined length of [2]+[3]
+    // Wait for core 1 to finish merging blocks 2+3
+    ece4750_bthread_join( 1 );
 
-  // Merge the two big runs: [s0 .. s0+l0-1] and [s2 .. s2+l2-1]
-  if ( l0 > 0 && l2 > 0 )
+    // Now we have two big runs:
+    //   Run A: [s0 .. s0 + (l0+l1) - 1]
+    //   Run B: [s2 .. s2 + (l2+l3) - 1]
+
+    l0 = l0 + l1;  // combined length of [0]+[1]
+    l2 = l2 + l3;  // combined length of [2]+[3]
+
+    // Final merge of the two big runs on core 0
     merge_two_runs( x, s0, l0, s2, l2, tmp );
-  // After this, the whole x[0..size-1] is sorted
+  }
 
+  // Fallback: if some blocks are empty, use the original sequential merges
+  else {
+
+    // Merge block0 + block1
+    if ( l0 > 0 && l1 > 0 )
+      merge_two_runs( x, s0, l0, s1, l1, tmp );
+    else if ( l1 > 0 ) {
+      // If block0 empty and block1 non-empty, just treat block1 as the first run
+      s0 = s1;
+      l0 = l1;
+    }
+    l0 = l0 + l1; // combined length of [0]+[1]
+
+    // Merge block2 + block3
+    if ( l2 > 0 && l3 > 0 )
+      merge_two_runs( x, s2, l2, s3, l3, tmp );
+    else if ( l3 > 0 ) {
+      s2 = s3;
+      l2 = l3;
+    }
+    l2 = l2 + l3; // combined length of [2]+[3]
+
+    // Merge the two big runs: [s0 .. s0+l0-1] and [s2 .. s2+l2-1]
+    if ( l0 > 0 && l2 > 0 )
+      merge_two_runs( x, s0, l0, s2, l2, tmp );
+  }
+
+  // After this, the whole x[0..size-1] is sorted
 }
 
