@@ -467,8 +467,7 @@ module lab2_proc_ProcAltCtrl
   assign ostall_D = val_D && ( ostall_mngr2proc_D || ostall_hazard_D || ostall_imul_D);
 
   // osquash due to jump instruction in D stage (not implemented yet)
-
-  assign osquash_D = val_D && (br_type_D == br_jal);
+  assign osquash_D = val_D && !stall_D && (br_type_D == br_jal);
 
   // stall and squash in D
 

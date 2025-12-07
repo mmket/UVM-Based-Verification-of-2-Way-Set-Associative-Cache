@@ -275,6 +275,43 @@ def gen_branch_7():
       addi  x3, x3, 0b10     # 1 + 2 -> 3
       csrw  proc2mngr, x3 > 0x03
     """
+
+def gen_jal_stall():
+    return """
+
+        csrr x5, mngr2proc < 0x0f
+        csrr x6, mngr2proc < 0x0f
+
+        # x3/x4 used to observe how many dynamic instructions execute
+        addi x3, x0, 0
+        addi x4, x0, 0
+
+        # Do some work before the jal
+        mul  x5, x5, x6      # 0x0f * 0x0f = 0x000000e1
+
+        # JAL with +8-byte offset (two instructions)
+        # Only ONE of the two addis below should execute if control logic is correct.
+        jal  x1, target
+
+        addi x4, x5, 100       # should be SQUASHED
+    target:
+
+        addi x4, x4, 2       # should be EXECUTED once
+
+
+        addi x3, x3, 2       # marker / bookkeeping
+
+        csrw proc2mngr, x5  > 0x000000e1
+        csrw proc2mngr, x4  > 0x00000002
+        csrw proc2mngr, x3  > 0x00000002
+
+    out:
+        nop
+        nop
+        nop
+
+    """
+
 def gen_mix_test():
   return f"""
 

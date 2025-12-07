@@ -63,6 +63,8 @@ module lab4_sys_MultiCoreSys
   output logic          dcache_miss
 );
 
+parameter eval_core = 0;
+
   //----------------------------------------------------------------------
   // Instruction Memory Network
   //----------------------------------------------------------------------
@@ -205,7 +207,7 @@ module lab4_sys_MultiCoreSys
   end
   endgenerate
 
-  assign commit_inst = commit_insts[0];
+  assign commit_inst = commit_insts[eval_core];
   assign stats_en    = stats_ens[0];
 
   //----------------------------------------------------------------------
@@ -241,7 +243,7 @@ module lab4_sys_MultiCoreSys
 
   // I-cache: count all core I$ accesses (proc->icache)
 assign icache_access =
-       (proc2icache_reqstream_val[0] & proc2icache_reqstream_rdy[0]);
+       (proc2icache_reqstream_val[eval_core] & proc2icache_reqstream_rdy[eval_core]);
       //   |
       //  (proc2icache_reqstream_val[1] & proc2icache_reqstream_rdy[1]) |
       //  (proc2icache_reqstream_val[2] & proc2icache_reqstream_rdy[2]) |
@@ -249,7 +251,7 @@ assign icache_access =
 
 // I-cache misses: any I$ miss that goes out to memory
 assign icache_miss =
-       (icache2imemnet_reqstream_val[0] & icache2imemnet_reqstream_rdy[0]);
+       (icache2imemnet_reqstream_val[eval_core] & icache2imemnet_reqstream_rdy[eval_core]);
       //   |
       //  (icache2imemnet_reqstream_val[1] & icache2imemnet_reqstream_rdy[1]) |
       //  (icache2imemnet_reqstream_val[2] & icache2imemnet_reqstream_rdy[2]) |
@@ -258,7 +260,7 @@ assign icache_miss =
 
 // D-cache: accesses from cores to the shared MultiCoreDataCache
 assign dcache_access =
-       (proc2dcache_reqstream_val[0] & proc2dcache_reqstream_rdy[0]);
+       (proc2dcache_reqstream_val[eval_core] & proc2dcache_reqstream_rdy[eval_core]);
       //   |
       //  (proc2dcache_reqstream_val[1] & proc2dcache_reqstream_rdy[1]) |
       //  (proc2dcache_reqstream_val[2] & proc2dcache_reqstream_rdy[2]) |
