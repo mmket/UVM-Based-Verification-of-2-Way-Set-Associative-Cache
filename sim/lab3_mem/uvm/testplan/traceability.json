@@ -1,0 +1,52 @@
+{
+  "project": "lab3_mem CacheAlt UVM",
+  "features": [
+    {
+      "name": "Read hit / refill path",
+      "tests": ["test_cache_sanity", "test_cache_random"],
+      "assertions": [
+        "a_proc_req_gets_rsp_bounded",
+        "a_mem_read_gets_rsp_bounded"
+      ],
+      "coverage": [
+        "refill_req_to_wait",
+        "refill_wait_to_update",
+        "refill_upd_to_rdda"
+      ]
+    },
+    {
+      "name": "Write hit / write-init path",
+      "tests": ["test_cache_sanity", "test_cache_random"],
+      "assertions": [
+        "a_proc_req_type_legal",
+        "a_proc_rsp_type_legal"
+      ],
+      "coverage": [
+        "tag_to_wr_hit",
+        "tag_to_init",
+        "wrda_to_wait"
+      ]
+    },
+    {
+      "name": "Evict + refill sequence",
+      "tests": ["test_cache_random"],
+      "assertions": [
+        "a_mem_req_hold_until_accept",
+        "a_mem_req_type_legal"
+      ],
+      "coverage": [
+        "tag_to_evict_prep",
+        "evict_prep_to_req",
+        "evict_req_to_wait",
+        "evict_wait_to_refill"
+      ]
+    }
+  ],
+  "coverage_to_tests": {
+    "cp_state": ["test_cache_sanity", "test_cache_random"],
+    "cp_arc": ["test_cache_random"],
+    "tag_to_evict_prep": ["test_cache_random"],
+    "evict_wait_to_refill": ["test_cache_random"],
+    "refill_upd_to_rdda": ["test_cache_sanity", "test_cache_random"]
+  }
+}
